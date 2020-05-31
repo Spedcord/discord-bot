@@ -71,6 +71,7 @@ public class SpedcordDiscordBot {
                 .put(new ProfileCommand(apiClient), "profile")
                 .put(new CreateJoinLinkCommand(apiClient), "createjoinlink")
                 .put(new SetLogChannelCommand(settingsProvider), "setlogchannel")
+                .put(new InfoCommand(settingsProvider), "info")
                 .put(new HelpCommand(), "help")
                 .activate();
 

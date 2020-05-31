@@ -25,7 +25,7 @@ public class SetLogChannelCommand extends AbstractCommand {
             return;
         }
 
-        GuildSettings guildSettings = settingsProvider.getGuildSettings(channel.getIdLong());
+        GuildSettings guildSettings = settingsProvider.getGuildSettings(channel.getGuild().getIdLong());
 
         TextChannel logChannel = event.getFirstChannelMention().orElse(channel);
         guildSettings.setLogChannelId(logChannel.getIdLong());
