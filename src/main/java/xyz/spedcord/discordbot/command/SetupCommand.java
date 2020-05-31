@@ -3,6 +3,7 @@ package xyz.spedcord.discordbot.command;
 import com.github.johnnyjayjay.discord.commandapi.AbstractCommand;
 import com.github.johnnyjayjay.discord.commandapi.CommandEvent;
 import com.github.johnnyjayjay.discord.commandapi.SubCommand;
+import net.dv8tion.jda.api.MessageBuilder;
 import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.entities.TextChannel;
@@ -12,6 +13,7 @@ import xyz.spedcord.discordbot.api.User;
 import xyz.spedcord.discordbot.message.Messages;
 
 import java.awt.*;
+import java.util.Set;
 
 public class SetupCommand extends AbstractCommand {
 
@@ -52,6 +54,12 @@ public class SetupCommand extends AbstractCommand {
 
         message.editMessage(apiResponse.status == 200 ? Messages.success("This server is now registered as a vtc!")
                 : Messages.error("Failed to register server")).queue();
+    }
+
+    @Override
+    public Message info(Member member, String prefix, Set<String> labels) {
+        return new MessageBuilder().setEmbed(Messages.custom("&setup", Color.PINK,
+                "Turns the server into a vtc.")).build();
     }
 
 }

@@ -4,6 +4,7 @@ import com.github.johnnyjayjay.discord.commandapi.AbstractCommand;
 import com.github.johnnyjayjay.discord.commandapi.CommandEvent;
 import com.github.johnnyjayjay.discord.commandapi.SubCommand;
 import net.dv8tion.jda.api.EmbedBuilder;
+import net.dv8tion.jda.api.MessageBuilder;
 import net.dv8tion.jda.api.entities.*;
 import xyz.spedcord.discordbot.api.ApiClient;
 import xyz.spedcord.discordbot.api.Company;
@@ -12,6 +13,7 @@ import xyz.spedcord.discordbot.message.Messages;
 import java.awt.*;
 import java.time.Instant;
 import java.util.Optional;
+import java.util.Set;
 
 public class ProfileCommand extends AbstractCommand {
 
@@ -57,6 +59,12 @@ public class ProfileCommand extends AbstractCommand {
     @SubCommand(isDefault = true)
     public void onWrongUsage(CommandEvent event, Member member, TextChannel channel, String[] args) {
         channel.sendMessage(Messages.wrongUsage("&profile <@user>")).queue();
+    }
+
+    @Override
+    public Message info(Member member, String prefix, Set<String> labels) {
+        return new MessageBuilder().setEmbed(Messages.custom("&profile <@member>", Color.PINK,
+                "Shows the Spedcord profile of a member")).build();
     }
 
 }

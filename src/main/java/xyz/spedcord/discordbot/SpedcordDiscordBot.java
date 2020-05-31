@@ -1,6 +1,7 @@
 package xyz.spedcord.discordbot;
 
 import com.github.johnnyjayjay.discord.commandapi.CommandSettings;
+import com.github.johnnyjayjay.discord.commandapi.DefaultHelpCommand;
 import com.google.gson.*;
 import dev.lukaesebrot.jal.endpoints.Endpoint;
 import dev.lukaesebrot.jal.endpoints.HttpServer;
@@ -16,9 +17,9 @@ import net.dv8tion.jda.api.events.ExceptionEvent;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
 import net.dv8tion.jda.api.requests.GatewayIntent;
 import net.dv8tion.jda.api.utils.MemberCachePolicy;
-import net.dv8tion.jda.api.utils.cache.CacheFlag;
 import xyz.spedcord.common.config.Config;
 import xyz.spedcord.discordbot.api.ApiClient;
+import xyz.spedcord.discordbot.command.CreateJoinLinkCommand;
 import xyz.spedcord.discordbot.command.ProfileCommand;
 import xyz.spedcord.discordbot.command.SetupCommand;
 
@@ -74,6 +75,9 @@ public class SpedcordDiscordBot {
         CommandSettings settings = new CommandSettings("&", jda, true);
         settings.put(new SetupCommand(apiClient), "setup")
                 .put(new ProfileCommand(apiClient), "profile")
+                .put(new CreateJoinLinkCommand(apiClient), "createjoinlink")
+                .put(new DefaultHelpCommand(), "help")
+                .setHelpCommandColor(Color.WHITE)
                 .activate();
 
         Executors.newSingleThreadScheduledExecutor().scheduleAtFixedRate(new Runnable() {

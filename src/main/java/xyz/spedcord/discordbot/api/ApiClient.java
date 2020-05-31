@@ -57,6 +57,15 @@ public class ApiClient {
         }, SpedcordDiscordBot.GSON.toJson(new Company(-1, serverId, name, ownerId, new ArrayList<>())));
     }
 
+    public ApiResponse createJoinLink(int companyId, int maxUses) {
+        return makeRequestSilent("/company/createjoinlink/" + companyId + "?maxUses=" + maxUses,
+                "POST", new HashMap<>(), new HashMap<>() {
+            {
+                put("Authorization", "");
+            }
+        }, "");
+    }
+
     private ApiResponse makeRequestSilent(String path, String method, Map<String, String> params, Map<String, String> header, String body) {
         try {
             return makeRequest(path, method, params, header, body);
