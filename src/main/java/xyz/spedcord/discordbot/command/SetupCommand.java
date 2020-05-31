@@ -22,7 +22,7 @@ public class SetupCommand extends AbstractCommand {
     }
 
     @SubCommand(isDefault = true)
-    public void onWrongUsage(CommandEvent event, Member member, TextChannel channel, String[] args) {
+    public void onExecution(CommandEvent event, Member member, TextChannel channel, String[] args) {
         if (member.getRoles().stream().noneMatch(role -> role.getName().equalsIgnoreCase("Spedcord Bot Admin"))) {
             event.respond(Messages.error("You need the `Spedcord Bot Admin` role for this command."));
             return;

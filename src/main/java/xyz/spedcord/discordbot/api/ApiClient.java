@@ -30,7 +30,17 @@ public class ApiClient {
     }
 
     public Company getCompanyInfo(long discordId) {
-        ApiResponse response = makeRequestSilent("/company/info/" + discordId,
+        ApiResponse response = makeRequestSilent("/company/info?discordServerId=" + discordId,
+                "GET", new HashMap<>(), new HashMap<>(), "");
+
+        if (response == null || response.status != 200) {
+            return null;
+        }
+        return SpedcordDiscordBot.GSON.fromJson(response.body, Company.class);
+    }
+
+    public Company getCompanyInfo(int id) {
+        ApiResponse response = makeRequestSilent("/company/info?id=" + id,
                 "GET", new HashMap<>(), new HashMap<>(), "");
 
         if (response == null || response.status != 200) {

@@ -19,6 +19,7 @@ import net.dv8tion.jda.api.utils.MemberCachePolicy;
 import net.dv8tion.jda.api.utils.cache.CacheFlag;
 import xyz.spedcord.common.config.Config;
 import xyz.spedcord.discordbot.api.ApiClient;
+import xyz.spedcord.discordbot.command.ProfileCommand;
 import xyz.spedcord.discordbot.command.SetupCommand;
 
 import javax.annotation.Nonnull;
@@ -71,7 +72,9 @@ public class SpedcordDiscordBot {
         ApiClient apiClient = new ApiClient();
 
         CommandSettings settings = new CommandSettings("&", jda, true);
-        settings.put(new SetupCommand(apiClient), "setup").activate();
+        settings.put(new SetupCommand(apiClient), "setup")
+                .put(new ProfileCommand(apiClient), "profile")
+                .activate();
 
         Executors.newSingleThreadScheduledExecutor().scheduleAtFixedRate(new Runnable() {
             private int idx = 0;

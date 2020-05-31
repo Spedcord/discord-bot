@@ -15,6 +15,10 @@ public class Messages {
         return custom("Error", Color.RED, desc);
     }
 
+    public static MessageEmbed wrongUsage(String correctUsage) {
+        return custom("Wrong usage", Color.RED, String.format("Correct usage:\n```%s```", correctUsage));
+    }
+
     public static MessageEmbed success(String desc) {
         return custom("Success", Color.GREEN, desc);
     }
