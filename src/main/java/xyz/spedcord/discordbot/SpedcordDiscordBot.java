@@ -1,7 +1,6 @@
 package xyz.spedcord.discordbot;
 
 import com.github.johnnyjayjay.discord.commandapi.CommandSettings;
-import com.github.johnnyjayjay.discord.commandapi.DefaultHelpCommand;
 import com.google.gson.*;
 import dev.lukaesebrot.jal.endpoints.Endpoint;
 import dev.lukaesebrot.jal.endpoints.HttpServer;
@@ -20,6 +19,7 @@ import net.dv8tion.jda.api.utils.MemberCachePolicy;
 import xyz.spedcord.common.config.Config;
 import xyz.spedcord.discordbot.api.ApiClient;
 import xyz.spedcord.discordbot.command.CreateJoinLinkCommand;
+import xyz.spedcord.discordbot.command.HelpCommand;
 import xyz.spedcord.discordbot.command.ProfileCommand;
 import xyz.spedcord.discordbot.command.SetupCommand;
 
@@ -60,13 +60,6 @@ public class SpedcordDiscordBot {
         )
                 .setToken(token)
                 .setMemberCachePolicy(MemberCachePolicy.ALL)
-                .addEventListeners(new ListenerAdapter() {
-                    @Override
-                    public void onException(@Nonnull ExceptionEvent event) {
-                        System.out.println("EXCEPTION");
-                        System.out.println(event.getCause());
-                    }
-                })
                 .build()
                 .awaitReady();
 
@@ -76,7 +69,7 @@ public class SpedcordDiscordBot {
         settings.put(new SetupCommand(apiClient), "setup")
                 .put(new ProfileCommand(apiClient), "profile")
                 .put(new CreateJoinLinkCommand(apiClient), "createjoinlink")
-                .put(new DefaultHelpCommand(), "help")
+                .put(new HelpCommand(), "help")
                 .setHelpCommandColor(Color.WHITE)
                 .activate();
 
@@ -129,7 +122,7 @@ public class SpedcordDiscordBot {
                                     privateChannel.sendMessage(new EmbedBuilder()
                                             .setTitle("Welcome to Spedcord!")
                                             .setDescription(String.format("Welcome! This is your private key: " +
-                                                    "||%s|| Please **do not** share this key with anyone!",
+                                                            "||%s|| Please **do not** share this key with anyone!",
                                                     jsonObject.get("data").getAsJsonObject().get("key").getAsString()))
                                             .setColor(Color.WHITE)
                                             .setTimestamp(Instant.now())

@@ -10,6 +10,7 @@ import net.dv8tion.jda.api.entities.TextChannel;
 import xyz.spedcord.discordbot.api.ApiClient;
 import xyz.spedcord.discordbot.api.Company;
 import xyz.spedcord.discordbot.message.Messages;
+import xyz.spedcord.discordbot.util.CommandUtil;
 
 import java.awt.*;
 import java.util.Set;
@@ -24,6 +25,11 @@ public class CreateJoinLinkCommand extends AbstractCommand {
 
     @SubCommand(isDefault = true)
     public void onExecution(CommandEvent event, Member member, TextChannel channel, String[] args) {
+        if (!CommandUtil.isBotAdmin(member)) {
+            event.respond(Messages.error("You need the `Spedcord Bot Admin` role for this command."));
+            return;
+        }
+
         Company companyInfo = apiClient.getCompanyInfo(channel.getGuild().getIdLong());
         if (companyInfo == null) {
             channel.sendMessage(Messages.error("This server is not registered as a vtc!")).queue();
@@ -31,7 +37,7 @@ public class CreateJoinLinkCommand extends AbstractCommand {
         }
 
         int maxUses = 1;
-        if(args.length >= 1) {
+        if (args.length >= 1) {
             try {
                 maxUses = Integer.parseInt(args[0]);
             } catch (NumberFormatException ignored) {
@@ -39,7 +45,7 @@ public class CreateJoinLinkCommand extends AbstractCommand {
                 return;
             }
 
-            if(maxUses <= 1) {
+            if (maxUses <= 1) {
                 channel.sendMessage(Messages.error("The maxUses parameter must be higher than 0!")).queue();
                 return;
             }
@@ -51,13 +57,15 @@ public class CreateJoinLinkCommand extends AbstractCommand {
             return;
         }
 
-        channel.sendMessage(Messages.success("Your join link was created: " + apiResponse.body.trim())).queue();
+        channel.sendMessage(Messages.success("Your join link was created: " + apiResponse.body.trim()
+                + "\nThis link can be used " + maxUses + " times.")).queue();
     }
 
     @Override
     public Message info(Member member, String prefix, Set<String> labels) {
         return new MessageBuilder().setEmbed(Messages.custom("&createjoinlink [maxUses]", Color.PINK,
-                "Creates a join link for this vtc. Max uses specifies the max amount of usages for this link.")).build();
+                "Creates a join link for this vtc. Max uses specifies the max amount of usages for this link." +
+                        "\n\n**Requires `Spedcord Bot Admin` role**")).build();
     }
 
 }

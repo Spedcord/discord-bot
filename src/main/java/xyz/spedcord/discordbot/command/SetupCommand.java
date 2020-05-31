@@ -11,6 +11,7 @@ import xyz.spedcord.discordbot.api.ApiClient;
 import xyz.spedcord.discordbot.api.Company;
 import xyz.spedcord.discordbot.api.User;
 import xyz.spedcord.discordbot.message.Messages;
+import xyz.spedcord.discordbot.util.CommandUtil;
 
 import java.awt.*;
 import java.util.Set;
@@ -25,7 +26,7 @@ public class SetupCommand extends AbstractCommand {
 
     @SubCommand(isDefault = true)
     public void onExecution(CommandEvent event, Member member, TextChannel channel, String[] args) {
-        if (member.getRoles().stream().noneMatch(role -> role.getName().equalsIgnoreCase("Spedcord Bot Admin"))) {
+        if (!CommandUtil.isBotAdmin(member)) {
             event.respond(Messages.error("You need the `Spedcord Bot Admin` role for this command."));
             return;
         }
@@ -59,7 +60,7 @@ public class SetupCommand extends AbstractCommand {
     @Override
     public Message info(Member member, String prefix, Set<String> labels) {
         return new MessageBuilder().setEmbed(Messages.custom("&setup", Color.PINK,
-                "Turns the server into a vtc.")).build();
+                "Turns the server into a vtc.\n\n**Requires `Spedcord Bot Admin` role**")).build();
     }
 
 }

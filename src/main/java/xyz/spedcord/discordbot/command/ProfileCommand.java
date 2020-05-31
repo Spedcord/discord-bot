@@ -51,6 +51,7 @@ public class ProfileCommand extends AbstractCommand {
                 .setTitle("Profile of " + user.getAsTag())
                 .setDescription(String.format("ID: %d\nCompany: %s", userInfo.getId(),
                         company == null ? "None" : company.getName()))
+                .setThumbnail(user.getEffectiveAvatarUrl())
                 .setColor(Color.WHITE)
                 .setTimestamp(Instant.now())
                 .build()).queue();
