@@ -18,10 +18,8 @@ import net.dv8tion.jda.api.requests.GatewayIntent;
 import net.dv8tion.jda.api.utils.MemberCachePolicy;
 import xyz.spedcord.common.config.Config;
 import xyz.spedcord.discordbot.api.ApiClient;
-import xyz.spedcord.discordbot.command.CreateJoinLinkCommand;
-import xyz.spedcord.discordbot.command.HelpCommand;
-import xyz.spedcord.discordbot.command.ProfileCommand;
-import xyz.spedcord.discordbot.command.SetupCommand;
+import xyz.spedcord.discordbot.command.*;
+import xyz.spedcord.discordbot.settings.GuildSettingsProvider;
 
 import javax.annotation.Nonnull;
 import javax.security.auth.login.LoginException;
@@ -46,6 +44,7 @@ public class SpedcordDiscordBot {
                 "key", "ENTER_A_SECRET_KEY",
                 "discord-token", "TOKEN"
         });
+        Config guildSettingsConfig = new Config(new File("guildsettings.cfg"));
 
         KEY = config.get("key");
         String token = config.get("discord-token");
@@ -63,14 +62,16 @@ public class SpedcordDiscordBot {
                 .build()
                 .awaitReady();
 
+        GuildSettingsProvider settingsProvider = new GuildSettingsProvider(guildSettingsConfig);
+
         ApiClient apiClient = new ApiClient();
 
         CommandSettings settings = new CommandSettings("&", jda, true);
         settings.put(new SetupCommand(apiClient), "setup")
                 .put(new ProfileCommand(apiClient), "profile")
                 .put(new CreateJoinLinkCommand(apiClient), "createjoinlink")
+                .put(new SetLogChannelCommand(settingsProvider), "setlogchannel")
                 .put(new HelpCommand(), "help")
-                .setHelpCommandColor(Color.WHITE)
                 .activate();
 
         Executors.newSingleThreadScheduledExecutor().scheduleAtFixedRate(new Runnable() {
