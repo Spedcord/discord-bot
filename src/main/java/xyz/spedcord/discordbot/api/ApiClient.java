@@ -60,10 +60,24 @@ public class ApiClient {
     public ApiResponse createJoinLink(int companyId, int maxUses) {
         return makeRequestSilent("/company/createjoinlink/" + companyId + "?maxUses=" + maxUses,
                 "POST", new HashMap<>(), new HashMap<>() {
-            {
-                put("Authorization", "");
-            }
-        }, "");
+                    {
+                        put("Authorization", "");
+                    }
+                }, "");
+    }
+
+    public ApiResponse kickMember(long companyDiscordId, long userDiscordId) {
+        return makeRequestSilent("/company/kickmember",
+                "POST", new HashMap<>() {
+                    {
+                        put("companyDiscordId", String.valueOf(companyDiscordId));
+                        put("userDiscordId", String.valueOf(userDiscordId));
+                    }
+                }, new HashMap<>() {
+                    {
+                        put("Authorization", "");
+                    }
+                }, "");
     }
 
     private ApiResponse makeRequestSilent(String path, String method, Map<String, String> params, Map<String, String> header, String body) {

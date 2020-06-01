@@ -26,7 +26,7 @@ public class CreateJoinLinkCommand extends AbstractCommand {
     @SubCommand(isDefault = true)
     public void onExecution(CommandEvent event, Member member, TextChannel channel, String[] args) {
         if (!CommandUtil.isBotAdmin(member)) {
-            event.respond(Messages.error("You need the `Spedcord Bot Admin` role for this command."));
+            event.respond(Messages.error("You need the `Spedcord Bot Admin` role or `Administrator` permission for this command."));
             return;
         }
 
@@ -45,8 +45,8 @@ public class CreateJoinLinkCommand extends AbstractCommand {
                 return;
             }
 
-            if (maxUses <= 1) {
-                channel.sendMessage(Messages.error("The maxUses parameter must be higher than 0!")).queue();
+            if (maxUses < 1) {
+                channel.sendMessage(Messages.error("The maxUses parameter must be greater than 0!")).queue();
                 return;
             }
         }

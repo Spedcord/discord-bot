@@ -12,8 +12,6 @@ import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.JDABuilder;
 import net.dv8tion.jda.api.entities.Activity;
 import net.dv8tion.jda.api.entities.User;
-import net.dv8tion.jda.api.events.ExceptionEvent;
-import net.dv8tion.jda.api.hooks.ListenerAdapter;
 import net.dv8tion.jda.api.requests.GatewayIntent;
 import net.dv8tion.jda.api.utils.MemberCachePolicy;
 import xyz.spedcord.common.config.Config;
@@ -21,7 +19,6 @@ import xyz.spedcord.discordbot.api.ApiClient;
 import xyz.spedcord.discordbot.command.*;
 import xyz.spedcord.discordbot.settings.GuildSettingsProvider;
 
-import javax.annotation.Nonnull;
 import javax.security.auth.login.LoginException;
 import java.awt.*;
 import java.io.File;
@@ -32,7 +29,7 @@ import java.util.concurrent.TimeUnit;
 
 public class SpedcordDiscordBot {
 
-    public static final boolean DEV = true;
+    public static final boolean DEV = false;
     public static final Gson GSON = new GsonBuilder()
             .setPrettyPrinting()
             .setLongSerializationPolicy(LongSerializationPolicy.STRING)
@@ -72,6 +69,8 @@ public class SpedcordDiscordBot {
                 .put(new CreateJoinLinkCommand(apiClient), "createjoinlink")
                 .put(new SetLogChannelCommand(settingsProvider), "setlogchannel")
                 .put(new InfoCommand(settingsProvider), "info")
+                .put(new KickMemberCommand(apiClient), "kickmember")
+                .put(new CompanyCommand(apiClient), "company")
                 .put(new HelpCommand(), "help")
                 .activate();
 
@@ -82,7 +81,7 @@ public class SpedcordDiscordBot {
             public void run() {
                 switch (idx) {
                     case 0:
-                        jda.getPresence().setActivity(Activity.listening("!help"));
+                        jda.getPresence().setActivity(Activity.listening("&help"));
                         idx++;
                         break;
                     case 1:
