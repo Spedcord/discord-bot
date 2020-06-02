@@ -1,35 +1,30 @@
 package xyz.spedcord.discordbot;
 
 import com.github.johnnyjayjay.discord.commandapi.CommandSettings;
-import com.google.gson.*;
-import dev.lukaesebrot.jal.endpoints.Endpoint;
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
+import com.google.gson.LongSerializationPolicy;
 import dev.lukaesebrot.jal.endpoints.HttpServer;
 import io.javalin.Javalin;
-import io.javalin.http.Context;
 import io.javalin.http.HandlerType;
-import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.JDABuilder;
 import net.dv8tion.jda.api.entities.Activity;
-import net.dv8tion.jda.api.entities.TextChannel;
-import net.dv8tion.jda.api.entities.User;
 import net.dv8tion.jda.api.requests.GatewayIntent;
 import net.dv8tion.jda.api.utils.MemberCachePolicy;
 import xyz.spedcord.common.config.Config;
 import xyz.spedcord.discordbot.api.ApiClient;
-import xyz.spedcord.discordbot.api.Company;
-import xyz.spedcord.discordbot.api.Job;
 import xyz.spedcord.discordbot.command.*;
-import xyz.spedcord.discordbot.message.Messages;
-import xyz.spedcord.discordbot.settings.GuildSettings;
+import xyz.spedcord.discordbot.javalin.WebhookHandler;
 import xyz.spedcord.discordbot.settings.GuildSettingsProvider;
 
 import javax.security.auth.login.LoginException;
-import java.awt.*;
+import java.io.BufferedReader;
 import java.io.File;
 import java.io.IOException;
-import java.time.Instant;
+import java.io.InputStreamReader;
 import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 
 public class SpedcordDiscordBot {
@@ -82,7 +77,16 @@ public class SpedcordDiscordBot {
                 .put(new HelpCommand(), "help")
                 .activate();
 
-        Executors.newSingleThreadScheduledExecutor().scheduleAtFixedRate(new Runnable() {
+        Runtime.getRuntime().addShutdownHook(new Thread(jda::shutdown));
+
+        startActivityTask(jda);
+        startServer(jda, apiClient, settingsProvider);
+        readInput();
+    }
+
+    private void startActivityTask(JDA jda) {
+        ScheduledExecutorService executorService = Executors.newSingleThreadScheduledExecutor();
+        executorService.scheduleAtFixedRate(new Runnable() {
             private int idx = 0;
 
             @Override
@@ -108,87 +112,33 @@ public class SpedcordDiscordBot {
             }
         }, 0, 5, TimeUnit.MINUTES);
 
-        startServer(jda, apiClient, settingsProvider);
+        Runtime.getRuntime().addShutdownHook(new Thread(executorService::shutdown));
     }
 
     private void startServer(JDA jda, ApiClient apiClient, GuildSettingsProvider settingsProvider) {
-        HttpServer server = new HttpServer(Javalin.create().start("localhost", 5675));
-        server.endpoint("/", HandlerType.POST, new Endpoint() {
-            @Override
-            public void handle(Context ctx) {
-                if (!ctx.ip().equals("127.0.0.1")) {
-                    ctx.status(401);
-                    return;
-                }
+        Javalin app = Javalin.create().start("localhost", 5675);
+        HttpServer server = new HttpServer(app);
+        server.endpoint("/", HandlerType.POST, new WebhookHandler(jda, apiClient, settingsProvider));
+        System.out.println("Server is listening");
 
-                JsonObject jsonObject = JsonParser.parseString(ctx.body()).getAsJsonObject();
-                long userId = jsonObject.get("user").getAsLong();
+        Runtime.getRuntime().addShutdownHook(new Thread(app::stop));
+    }
 
-                switch (jsonObject.get("event").getAsString()) {
-                    case "NEW_USER":
-                        User user = jda.getUserById(userId);
-                        if (user != null) {
-                            user.openPrivateChannel().queue(privateChannel ->
-                                    privateChannel.sendMessage(new EmbedBuilder()
-                                            .setTitle("Welcome to Spedcord!")
-                                            .setDescription(String.format("Welcome! This is your private key: " +
-                                                            "||%s|| Please **do not** share this key with anyone!",
-                                                    jsonObject.get("data").getAsJsonObject().get("key").getAsString()))
-                                            .setColor(Color.WHITE)
-                                            .setTimestamp(Instant.now())
-                                            .build()).queue());
-                        } else {
-                            System.out.println("null");
-                        }
-                        break;
-                    case "JOB":
-                        xyz.spedcord.discordbot.api.User userInfo = apiClient.getUserInfo(userId, false);
-                        Company companyInfo = apiClient.getCompanyInfo(userInfo.getCompanyId());
-                        GuildSettings guildSettings = settingsProvider.getGuildSettings(companyInfo.getDiscordServerId());
-
-                        if (guildSettings.getLogChannelId() == -1) {
-                            break;
-                        }
-
-                        TextChannel channel = jda.getTextChannelById(guildSettings.getLogChannelId());
-                        if (channel == null) {
-                            break;
-                        }
-
-                        User discordUser = jda.getUserById(userId);
-                        if (discordUser == null) {
-                            break;
-                        }
-
-                        JsonObject jobObj = jsonObject.get("data").getAsJsonObject();
-                        Job jobData = GSON.fromJson(jobObj, Job.class);
-                        String state = jobObj.get("state").getAsString();
-
-                        switch (state) {
-                            case "START":
-                                channel.sendMessage(Messages.custom("Job started", Color.ORANGE,
-                                        String.format("User: %s\n```\n%s -> %s\n%s (%.2ft)\n%s\n```", discordUser.getAsTag(),
-                                                jobData.getFromCity(), jobData.getToCity(), jobData.getCargo(),
-                                                jobData.getCargoWeight(), jobData.getTruck()))).queue();
-                                break;
-                            case "END":
-                                channel.sendMessage(Messages.custom("Job ended", Color.GREEN,
-                                        String.format("User: %s\n```\n%s -> %s\n%s (%.2ft)\n%s\n%.0f\n```", discordUser.getAsTag(),
-                                                jobData.getFromCity(), jobData.getToCity(), jobData.getCargo(),
-                                                jobData.getCargoWeight(), jobData.getTruck(), jobData.getPay()))).queue();
-                                break;
-                            case "CANCEL":
-                                channel.sendMessage(Messages.custom("Job cancelled", Color.RED,
-                                        String.format("User: %s\n```\n%s -> %s\n%s (%.2ft)\n```", discordUser.getAsTag(),
-                                                jobData.getFromCity(), jobData.getToCity(), jobData.getCargo(),
-                                                jobData.getCargoWeight()))).queue();
-                                break;
-                        }
-                        break;
+    private void readInput() {
+        BufferedReader reader = new BufferedReader(new InputStreamReader(System.in));
+        String s;
+        try {
+            while ((s = reader.readLine()) != null) {
+                if (s.toLowerCase().matches("q|quit|exit|stop|shutdown")) {
+                    System.out.println("Goodbye");
+                    reader.close();
+                    System.exit(0);
+                    break;
                 }
             }
-        });
-        System.out.println("Server is listening");
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 
 }
