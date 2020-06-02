@@ -80,6 +80,34 @@ public class ApiClient {
                 }, "");
     }
 
+    public ApiResponse changeUserKey(long userDiscordId) {
+        return makeRequestSilent("/user/changekey",
+                "POST", new HashMap<>() {
+                    {
+                        put("discordId", String.valueOf(userDiscordId));
+                    }
+                }, new HashMap<>() {
+                    {
+                        put("Authorization", "");
+                    }
+                }, "");
+    }
+
+    public ApiResponse cancelJob(long userDiscordId) {
+        String key = getUserInfo(userDiscordId, true).getKey();
+        return makeRequestSilent("/job/cancel",
+                "POST", new HashMap<>() {
+                    {
+                        put("discordId", String.valueOf(userDiscordId));
+                        put("key", key);
+                    }
+                }, new HashMap<>() {
+                    {
+                        put("Authorization", "");
+                    }
+                }, "");
+    }
+
     private ApiResponse makeRequestSilent(String path, String method, Map<String, String> params, Map<String, String> header, String body) {
         try {
             return makeRequest(path, method, params, header, body);

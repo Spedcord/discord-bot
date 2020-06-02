@@ -23,6 +23,14 @@ public class Messages {
         return custom("Success", Color.GREEN, desc);
     }
 
+    public static MessageEmbed pleaseWait() {
+        return pleaseWait("");
+    }
+
+    public static MessageEmbed pleaseWait(String desc) {
+        return custom("Please wait", Color.ORANGE, desc);
+    }
+
     public static MessageEmbed custom(String title, Color color, String desc) {
         return new EmbedBuilder()
                 .setTitle(title)
