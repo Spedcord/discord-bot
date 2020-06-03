@@ -12,11 +12,11 @@ import xyz.spedcord.discordbot.SpedcordDiscordBot;
 import xyz.spedcord.discordbot.api.ApiClient;
 import xyz.spedcord.discordbot.api.Company;
 import xyz.spedcord.discordbot.api.Job;
-import xyz.spedcord.discordbot.message.Messages;
 import xyz.spedcord.discordbot.settings.GuildSettings;
 import xyz.spedcord.discordbot.settings.GuildSettingsProvider;
 
 import java.awt.*;
+import java.text.DecimalFormat;
 import java.time.Instant;
 
 public class WebhookHandler extends Endpoint {
@@ -105,24 +105,43 @@ public class WebhookHandler extends Endpoint {
     }
 
     private void handleJobStart(TextChannel channel, User discordUser, Job jobData) {
-        channel.sendMessage(Messages.custom("Job started", Color.ORANGE,
-                String.format("User: %s\n```\n%s -> %s\n%s (%.2ft)\n%s\n```", discordUser.getAsTag(),
-                        jobData.getFromCity(), jobData.getToCity(), jobData.getCargo(),
-                        jobData.getCargoWeight(), jobData.getTruck()))).queue();
+        channel.sendMessage(new EmbedBuilder()
+                .setTitle("Delivery has been started")
+                .addField("Driver", discordUser.getAsMention(), false)
+                .addField("Route", jobData.getFromCity() + " -> " + jobData.getToCity(), false)
+                .addField("Cargo", jobData.getCargo() + " (" + jobData.getCargoWeight() + "t)", false)
+                .addField("Truck", jobData.getTruck(), false)
+                .setColor(Color.ORANGE)
+                .setTimestamp(Instant.now())
+                .setFooter("Powered by Spedcord", jda.getSelfUser().getEffectiveAvatarUrl())
+                .build()).queue();
     }
 
     private void handleJobEnd(TextChannel channel, User discordUser, Job jobData) {
-        channel.sendMessage(Messages.custom("Job ended", Color.GREEN,
-                String.format("User: %s\n```\n%s -> %s\n%s (%.2ft)\n%s\n%.0f\n```", discordUser.getAsTag(),
-                        jobData.getFromCity(), jobData.getToCity(), jobData.getCargo(),
-                        jobData.getCargoWeight(), jobData.getTruck(), jobData.getPay()))).queue();
+        channel.sendMessage(new EmbedBuilder()
+                .setTitle("Delivery has been delivered")
+                .addField("Driver", discordUser.getAsMention(), false)
+                .addField("Route", jobData.getFromCity() + " -> " + jobData.getToCity(), false)
+                .addField("Cargo", jobData.getCargo() + " (" + jobData.getCargoWeight() + "t)", false)
+                .addField("Truck", jobData.getTruck(), false)
+                .addField("Pay", new DecimalFormat("#,###").format(jobData.getPay()) + "$", false)
+                .setColor(Color.GREEN)
+                .setTimestamp(Instant.now())
+                .setFooter("Powered by Spedcord", jda.getSelfUser().getEffectiveAvatarUrl())
+                .build()).queue();
     }
 
     private void handleJobCancel(TextChannel channel, User discordUser, Job jobData) {
-        channel.sendMessage(Messages.custom("Job cancelled", Color.RED,
-                String.format("User: %s\n```\n%s -> %s\n%s (%.2ft)\n```", discordUser.getAsTag(),
-                        jobData.getFromCity(), jobData.getToCity(), jobData.getCargo(),
-                        jobData.getCargoWeight()))).queue();
+        channel.sendMessage(new EmbedBuilder()
+                .setTitle("Delivery has been cancelled")
+                .addField("Driver", discordUser.getAsMention(), false)
+                .addField("Route", jobData.getFromCity() + " -> " + jobData.getToCity(), false)
+                .addField("Cargo", jobData.getCargo() + " (" + jobData.getCargoWeight() + "t)", false)
+                .addField("Truck", jobData.getTruck(), false)
+                .setColor(Color.RED)
+                .setTimestamp(Instant.now())
+                .setFooter("Powered by Spedcord", jda.getSelfUser().getEffectiveAvatarUrl())
+                .build()).queue();
     }
 
 }

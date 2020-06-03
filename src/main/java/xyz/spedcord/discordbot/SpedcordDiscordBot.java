@@ -74,6 +74,7 @@ public class SpedcordDiscordBot {
                 .put(new ChangeKeyCommand(apiClient), "changekey")
                 .put(new DisplayKeyCommand(apiClient), "displaykey", "showkey", "key")
                 .put(new CancelJobCommand(apiClient), "canceljob")
+                .put(new BalanceCommand(apiClient), "balance")
                 .put(new HelpCommand(), "help")
                 .activate();
 
