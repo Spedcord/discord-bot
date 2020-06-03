@@ -13,6 +13,7 @@ import xyz.spedcord.discordbot.message.Messages;
 
 import java.awt.*;
 import java.time.Instant;
+import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
 
@@ -23,6 +24,14 @@ public class HelpCommand extends AbstractHelpCommand {
         Member member = event.getMember();
         User user = member.getUser();
 
+        Map<String, ICommand> commandsCopy = new HashMap<>();
+        commands.forEach((s, iCommand) -> {
+            if (commandsCopy.containsValue(iCommand)) {
+                return;
+            }
+            commandsCopy.put(s, iCommand);
+        });
+
         CommandSettings settings = event.getCommandSettings();
         EmbedBuilder embedBuilder = new EmbedBuilder();
         embedBuilder.setTitle("Spedcord Bot Help")
@@ -31,7 +40,7 @@ public class HelpCommand extends AbstractHelpCommand {
                 .setColor(Color.GRAY)
                 .setTimestamp(Instant.now());
 
-        embedBuilder.appendDescription("```\n" + String.join(", ", commands.keySet()) + "\n```");
+        embedBuilder.appendDescription("```\n" + String.join(", ", commandsCopy.keySet()) + "\n```");
 
         event.respond(embedBuilder.build());
     }
@@ -44,7 +53,7 @@ public class HelpCommand extends AbstractHelpCommand {
     @Override
     public Message info(Member member, String prefix, Set<String> labels) {
         return new MessageBuilder(Messages.custom("&help [command]", Color.PINK,
-                "Shows general help or help for a command")).build();
+                "Shows general help or help for a command.")).build();
     }
 
 }

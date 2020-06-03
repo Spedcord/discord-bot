@@ -4,14 +4,18 @@ import com.github.johnnyjayjay.discord.commandapi.AbstractCommand;
 import com.github.johnnyjayjay.discord.commandapi.CommandEvent;
 import com.github.johnnyjayjay.discord.commandapi.SubCommand;
 import com.google.gson.JsonParser;
+import net.dv8tion.jda.api.MessageBuilder;
 import net.dv8tion.jda.api.entities.Member;
+import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.entities.TextChannel;
 import net.dv8tion.jda.api.entities.User;
 import xyz.spedcord.discordbot.api.ApiClient;
 import xyz.spedcord.discordbot.message.Messages;
 import xyz.spedcord.discordbot.util.CommandUtil;
 
+import java.awt.*;
 import java.util.Optional;
+import java.util.Set;
 
 public class KickMemberCommand extends AbstractCommand {
 
@@ -49,6 +53,12 @@ public class KickMemberCommand extends AbstractCommand {
     @SubCommand(isDefault = true)
     public void onWrongUsage(CommandEvent event, Member member, TextChannel channel, String[] args) {
         channel.sendMessage(Messages.wrongUsage("&kickmember <@user>")).queue();
+    }
+
+    @Override
+    public Message info(Member member, String prefix, Set<String> labels) {
+        return new MessageBuilder().setEmbed(Messages.custom("&kickmember <@member>", Color.PINK,
+                "Removes a member from the company.\n\n**Requires `Spedcord Bot Admin` role**")).build();
     }
 
 }

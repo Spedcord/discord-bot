@@ -4,10 +4,16 @@ import com.github.johnnyjayjay.discord.commandapi.AbstractCommand;
 import com.github.johnnyjayjay.discord.commandapi.CommandEvent;
 import com.github.johnnyjayjay.discord.commandapi.SubCommand;
 import com.google.gson.JsonParser;
+import net.dv8tion.jda.api.MessageBuilder;
+import net.dv8tion.jda.api.entities.Member;
+import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.entities.MessageChannel;
 import net.dv8tion.jda.api.entities.User;
 import xyz.spedcord.discordbot.api.ApiClient;
 import xyz.spedcord.discordbot.message.Messages;
+
+import java.awt.*;
+import java.util.Set;
 
 public class CancelJobCommand extends AbstractCommand {
 
@@ -30,6 +36,12 @@ public class CancelJobCommand extends AbstractCommand {
 
             message.editMessage(Messages.success("Your job was cancelled!")).queue();
         });
+    }
+
+    @Override
+    public Message info(Member member, String prefix, Set<String> labels) {
+        return new MessageBuilder().setEmbed(Messages.custom("&canceljob", Color.PINK,
+                "Cancels your current delivery.")).build();
     }
 
 }

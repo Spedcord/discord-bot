@@ -4,14 +4,19 @@ import com.github.johnnyjayjay.discord.commandapi.AbstractCommand;
 import com.github.johnnyjayjay.discord.commandapi.CommandEvent;
 import com.github.johnnyjayjay.discord.commandapi.SubCommand;
 import net.dv8tion.jda.api.EmbedBuilder;
+import net.dv8tion.jda.api.MessageBuilder;
 import net.dv8tion.jda.api.entities.Member;
+import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.entities.TextChannel;
 import net.dv8tion.jda.api.entities.User;
 import xyz.spedcord.discordbot.api.ApiClient;
 import xyz.spedcord.discordbot.api.Company;
 import xyz.spedcord.discordbot.message.Messages;
 
+import java.awt.*;
+import java.text.DecimalFormat;
 import java.time.Instant;
+import java.util.Set;
 
 public class CompanyCommand extends AbstractCommand {
 
@@ -36,9 +41,16 @@ public class CompanyCommand extends AbstractCommand {
                 .appendDescription("\nName: " + companyInfo.getName())
                 .appendDescription("\nMember: " + companyInfo.getMemberDiscordIds().size())
                 .appendDescription("\nOwner: " + (owner == null ? "Unknown" : owner.getAsTag()))
+                .appendDescription("\nBalance: " + new DecimalFormat("#,###").format(companyInfo.getBalance()))
                 .setFooter("Requested by " + member.getUser().getAsTag(), member.getUser().getEffectiveAvatarUrl())
                 .setTimestamp(Instant.now())
                 .build()).queue();
+    }
+
+    @Override
+    public Message info(Member member, String prefix, Set<String> labels) {
+        return new MessageBuilder().setEmbed(Messages.custom("&company", Color.PINK,
+                "Shows company related info.")).build();
     }
 
 }

@@ -65,7 +65,7 @@ public class ProfileCommand extends AbstractCommand {
     @Override
     public Message info(Member member, String prefix, Set<String> labels) {
         return new MessageBuilder().setEmbed(Messages.custom("&profile <@member>", Color.PINK,
-                "Shows the Spedcord profile of a member")).build();
+                "Shows the Spedcord profile of a member.")).build();
     }
 
 }
