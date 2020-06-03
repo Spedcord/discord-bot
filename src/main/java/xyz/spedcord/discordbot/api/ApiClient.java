@@ -54,7 +54,7 @@ public class ApiClient {
             {
                 put("Authorization", "");
             }
-        }, SpedcordDiscordBot.GSON.toJson(new Company(-1, serverId, name, ownerId, new ArrayList<>())));
+        }, SpedcordDiscordBot.GSON.toJson(new Company(-1, serverId, name, ownerId, 0, new ArrayList<>())));
     }
 
     public ApiResponse createJoinLink(int companyId, int maxUses) {

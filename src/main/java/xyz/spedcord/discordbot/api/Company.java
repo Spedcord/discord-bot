@@ -8,13 +8,15 @@ public class Company {
     private final long discordServerId;
     private String name;
     private final long ownerDiscordId;
+    private final double balance;
     private final List<Long> memberDiscordIds;
 
-    public Company(int id, long discordServerId, String name, long ownerDiscordId, List<Long> memberDiscordIds) {
+    public Company(int id, long discordServerId, String name, long ownerDiscordId, double balance, List<Long> memberDiscordIds) {
         this.id = id;
         this.discordServerId = discordServerId;
         this.name = name;
         this.ownerDiscordId = ownerDiscordId;
+        this.balance = balance;
         this.memberDiscordIds = memberDiscordIds;
     }
 
@@ -42,4 +44,7 @@ public class Company {
         this.name = name;
     }
 
+    public double getBalance() {
+        return balance;
+    }
 }

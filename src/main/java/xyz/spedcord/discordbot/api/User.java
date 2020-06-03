@@ -8,13 +8,15 @@ public class User {
     private final long discordId;
     private String key;
     private int companyId;
+    private final double balance;
     private final List<Integer> jobList;
 
-    public User(int id, long discordId, String key, int companyId, List<Integer> jobList) {
+    public User(int id, long discordId, String key, int companyId, double balance, List<Integer> jobList) {
         this.id = id;
         this.discordId = discordId;
         this.key = key;
         this.companyId = companyId;
+        this.balance = balance;
         this.jobList = jobList;
     }
 
@@ -46,4 +48,7 @@ public class User {
         this.key = key;
     }
 
+    public double getBalance() {
+        return balance;
+    }
 }
