@@ -9,7 +9,6 @@ import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.entities.TextChannel;
 import net.dv8tion.jda.api.entities.User;
 import xyz.spedcord.discordbot.api.ApiClient;
-import xyz.spedcord.discordbot.api.Company;
 import xyz.spedcord.discordbot.message.Messages;
 
 import java.awt.*;
@@ -41,7 +40,7 @@ public class BalanceCommand extends AbstractCommand {
         }
 
         channel.sendMessage(Messages.custom("Balance", Color.ORANGE, String.format("Balance of %s: `%s`",
-                user.getAsTag(), new DecimalFormat("#,###").format(userInfo.getBalance())))).queue();
+                user.getAsTag(), new DecimalFormat("#,###").format(userInfo.getBalance()) + "$"))).queue();
     }
 
     @SubCommand(isDefault = true)

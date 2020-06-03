@@ -41,7 +41,7 @@ public class CompanyCommand extends AbstractCommand {
                 .appendDescription("\nName: " + companyInfo.getName())
                 .appendDescription("\nMember: " + companyInfo.getMemberDiscordIds().size())
                 .appendDescription("\nOwner: " + (owner == null ? "Unknown" : owner.getAsTag()))
-                .appendDescription("\nBalance: " + new DecimalFormat("#,###").format(companyInfo.getBalance()))
+                .appendDescription("\nBalance: " + new DecimalFormat("#,###").format(companyInfo.getBalance()) + "$")
                 .setFooter("Requested by " + member.getUser().getAsTag(), member.getUser().getEffectiveAvatarUrl())
                 .setTimestamp(Instant.now())
                 .build()).queue();
