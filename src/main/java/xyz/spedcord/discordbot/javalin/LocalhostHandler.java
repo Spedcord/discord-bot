@@ -19,13 +19,13 @@ import java.awt.*;
 import java.text.DecimalFormat;
 import java.time.Instant;
 
-public class WebhookHandler extends Endpoint {
+public class LocalhostHandler extends Endpoint {
 
     private final JDA jda;
     private final ApiClient apiClient;
     private final GuildSettingsProvider settingsProvider;
 
-    public WebhookHandler(JDA jda, ApiClient apiClient, GuildSettingsProvider settingsProvider) {
+    public LocalhostHandler(JDA jda, ApiClient apiClient, GuildSettingsProvider settingsProvider) {
         this.jda = jda;
         this.apiClient = apiClient;
         this.settingsProvider = settingsProvider;
