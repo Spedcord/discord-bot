@@ -12,6 +12,7 @@ import xyz.spedcord.discordbot.message.Messages;
 
 import java.awt.*;
 import java.time.Instant;
+import java.util.Arrays;
 import java.util.Optional;
 import java.util.Set;
 
@@ -47,14 +48,18 @@ public class ProfileCommand extends AbstractCommand {
 
         Company company = userInfo.getCompanyId() == -1 ? null : apiClient.getCompanyInfo(userInfo.getCompanyId());
 
-        channel.sendMessage(new EmbedBuilder()
+        EmbedBuilder embedBuilder = new EmbedBuilder()
                 .setTitle("Profile of " + user.getAsTag())
                 .setDescription(String.format("ID: %d\nCompany: %s", userInfo.getId(),
                         company == null ? "None" : company.getName()))
                 .setThumbnail(user.getEffectiveAvatarUrl())
                 .setColor(Color.WHITE)
-                .setTimestamp(Instant.now())
-                .build()).queue();
+                .setTimestamp(Instant.now());
+        if(Arrays.asList(userInfo.getFlags()).contains(xyz.spedcord.discordbot.api.User.Flag.CHEATER)) {
+            embedBuilder.addField(":warning: Warning :warning:", "This user is flagged as a cheater!", false);
+        }
+
+        channel.sendMessage(embedBuilder.build()).queue();
     }
 
     @SubCommand(isDefault = true)

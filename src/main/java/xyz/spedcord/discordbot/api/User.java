@@ -10,14 +10,16 @@ public class User {
     private int companyId;
     private final double balance;
     private final List<Integer> jobList;
+    private Flag[] flags;
 
-    public User(int id, long discordId, String key, int companyId, double balance, List<Integer> jobList) {
+    public User(int id, long discordId, String key, int companyId, double balance, List<Integer> jobList, Flag[] flags) {
         this.id = id;
         this.discordId = discordId;
         this.key = key;
         this.companyId = companyId;
         this.balance = balance;
         this.jobList = jobList;
+        this.flags = flags;
     }
 
     public int getId() {
@@ -50,5 +52,13 @@ public class User {
 
     public double getBalance() {
         return balance;
+    }
+
+    public Flag[] getFlags() {
+        return flags;
+    }
+
+    public enum Flag {
+        CHEATER
     }
 }
