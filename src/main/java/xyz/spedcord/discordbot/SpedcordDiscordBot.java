@@ -15,7 +15,8 @@ import net.dv8tion.jda.api.utils.MemberCachePolicy;
 import xyz.spedcord.common.config.Config;
 import xyz.spedcord.discordbot.api.ApiClient;
 import xyz.spedcord.discordbot.command.*;
-import xyz.spedcord.discordbot.javalin.WebhookHandler;
+import xyz.spedcord.discordbot.javalin.KoFiHandler;
+import xyz.spedcord.discordbot.javalin.LocalhostHandler;
 import xyz.spedcord.discordbot.settings.GuildSettingsProvider;
 
 import javax.security.auth.login.LoginException;
@@ -117,9 +118,10 @@ public class SpedcordDiscordBot {
     }
 
     private void startServer(JDA jda, ApiClient apiClient, GuildSettingsProvider settingsProvider) {
-        Javalin app = Javalin.create().start("localhost", 5675);
+        Javalin app = Javalin.create().start("192.95.58.241", 5675);
         HttpServer server = new HttpServer(app);
-        server.endpoint("/", HandlerType.POST, new WebhookHandler(jda, apiClient, settingsProvider));
+        server.endpoint("/", HandlerType.POST, new LocalhostHandler(jda, apiClient, settingsProvider));
+        server.endpoint("/kofi", HandlerType.POST, new KoFiHandler(jda));
         System.out.println("Server is listening");
 
         Runtime.getRuntime().addShutdownHook(new Thread(app::stop));
