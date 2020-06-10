@@ -30,7 +30,7 @@ public class LeaveCompanyCommand extends AbstractCommand {
         apiClient.getExecutorService().submit(() -> {
             ApiClient.ApiResponse apiResponse = apiClient.leaveCompany(user.getIdLong());
 
-            if (apiResponse.status != 200) {
+            if (apiResponse.status == 200) {
                 message.editMessage(Messages.success("You left your company!")).queue();
                 return;
             }
