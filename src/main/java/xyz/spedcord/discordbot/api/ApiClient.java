@@ -9,11 +9,18 @@ import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 public class ApiClient {
 
     private static final String API_URL = "https://api.spedcord.xyz";
     private static final String DEV_API_URL = "http://localhost:81";
+
+    private final ExecutorService executorService = Executors.newSingleThreadExecutor();
+
+    public ApiClient() {
+    }
 
     public User getUserInfo(long discordId, boolean elevated) {
         ApiResponse response = makeRequestSilent("/user/" + (elevated ? "get" : "info") + "/" + discordId,
@@ -108,6 +115,19 @@ public class ApiClient {
                 }, "");
     }
 
+    public ApiResponse leaveCompany(long userDiscordId) {
+        return makeRequestSilent("/user/leavecompany",
+                "POST", new HashMap<>() {
+                    {
+                        put("discordId", String.valueOf(userDiscordId));
+                    }
+                }, new HashMap<>() {
+                    {
+                        put("Authorization", "");
+                    }
+                }, "");
+    }
+
     private ApiResponse makeRequestSilent(String path, String method, Map<String, String> params, Map<String, String> header, String body) {
         try {
             return makeRequest(path, method, params, header, body);
@@ -160,6 +180,10 @@ public class ApiClient {
 
     private boolean isBad(int responseCode) {
         return responseCode == 400 || responseCode == 404 || responseCode == 401;
+    }
+
+    public ExecutorService getExecutorService() {
+        return executorService;
     }
 
     public static class ApiResponse {
