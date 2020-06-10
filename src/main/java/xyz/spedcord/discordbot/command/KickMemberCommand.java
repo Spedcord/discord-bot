@@ -39,15 +39,19 @@ public class KickMemberCommand extends AbstractCommand {
         }
 
         User user = userMention.get();
-        ApiClient.ApiResponse apiResponse = apiClient.kickMember(channel.getGuild().getIdLong(), user.getIdLong());
-        if (apiResponse.status == 200) {
-            channel.sendMessage(Messages.success("The member was kicked!")).queue();
-            return;
-        }
+        Message message = channel.sendMessage(Messages.pleaseWait()).complete();
 
-        channel.sendMessage(Messages.error(String.format("Failed to kick member: `%s`",
-                JsonParser.parseString(apiResponse.body).getAsJsonObject().get("data")
-                        .getAsJsonObject().get("message").getAsString()))).queue();
+        apiClient.getExecutorService().submit(() -> {
+            ApiClient.ApiResponse apiResponse = apiClient.kickMember(channel.getGuild().getIdLong(), user.getIdLong());
+            if (apiResponse.status == 200) {
+                message.editMessage(Messages.success("The member was kicked!")).queue();
+                return;
+            }
+
+            message.editMessage(Messages.error(String.format("Failed to kick member: `%s`",
+                    JsonParser.parseString(apiResponse.body).getAsJsonObject().get("data")
+                            .getAsJsonObject().get("message").getAsString()))).queue();
+        });
     }
 
     @SubCommand(isDefault = true)

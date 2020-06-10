@@ -28,23 +28,27 @@ public class CompanyCommand extends AbstractCommand {
 
     @SubCommand(isDefault = true)
     public void onExecution(CommandEvent event, Member member, TextChannel channel, String[] args) {
-        Company companyInfo = apiClient.getCompanyInfo(channel.getGuild().getIdLong());
-        if (companyInfo == null) {
-            channel.sendMessage(Messages.error("This server is not a vtc!")).queue();
-            return;
-        }
+        Message message = channel.sendMessage(Messages.pleaseWait()).complete();
 
-        User owner = event.getJDA().getUserById(companyInfo.getOwnerDiscordId());
-        channel.sendMessage(new EmbedBuilder()
-                .setTitle("Company Info")
-                .setDescription("ID: " + companyInfo.getId())
-                .appendDescription("\nName: " + companyInfo.getName())
-                .appendDescription("\nMember: " + companyInfo.getMemberDiscordIds().size())
-                .appendDescription("\nOwner: " + (owner == null ? "Unknown" : owner.getAsTag()))
-                .appendDescription("\nBalance: " + new DecimalFormat("#,###").format(companyInfo.getBalance()) + "$")
-                .setFooter("Requested by " + member.getUser().getAsTag(), member.getUser().getEffectiveAvatarUrl())
-                .setTimestamp(Instant.now())
-                .build()).queue();
+        apiClient.getExecutorService().submit(() -> {
+            Company companyInfo = apiClient.getCompanyInfo(channel.getGuild().getIdLong());
+            if (companyInfo == null) {
+                message.editMessage(Messages.error("This server is not a vtc!")).queue();
+                return;
+            }
+
+            User owner = event.getJDA().getUserById(companyInfo.getOwnerDiscordId());
+            message.editMessage(new EmbedBuilder()
+                    .setTitle("Company Info")
+                    .setDescription("ID: " + companyInfo.getId())
+                    .appendDescription("\nName: " + companyInfo.getName())
+                    .appendDescription("\nMember: " + companyInfo.getMemberDiscordIds().size())
+                    .appendDescription("\nOwner: " + (owner == null ? "Unknown" : owner.getAsTag()))
+                    .appendDescription("\nBalance: " + new DecimalFormat("#,###").format(companyInfo.getBalance()) + "$")
+                    .setFooter("Requested by " + member.getUser().getAsTag(), member.getUser().getEffectiveAvatarUrl())
+                    .setTimestamp(Instant.now())
+                    .build()).queue();
+        });
     }
 
     @Override

@@ -26,17 +26,19 @@ public class DisplayKeyCommand extends AbstractCommand {
             return;
         }
 
-        channel.sendMessage(Messages.custom("Please wait", Color.ORANGE, "")).queue(message -> {
-            xyz.spedcord.discordbot.api.User userInfo = apiClient.getUserInfo(user.getIdLong(), true);
+        channel.sendMessage(Messages.pleaseWait()).queue(message -> {
+            apiClient.getExecutorService().submit(() -> {
+                xyz.spedcord.discordbot.api.User userInfo = apiClient.getUserInfo(user.getIdLong(), true);
 
-            if(userInfo == null) {
-                channel.sendMessage(Messages.error("You are not registered! You can register yourself " +
-                        "here: https://api.spedcord.xyz/user/register")).queue();
-                return;
-            }
+                if(userInfo == null) {
+                    channel.sendMessage(Messages.error("You are not registered! You can register yourself " +
+                            "here: https://api.spedcord.xyz/user/register")).queue();
+                    return;
+                }
 
-            message.editMessage(Messages.custom("Your key", Color.GRAY, String.format("||%s||\n**DO NOT " +
-                    "share this key with anyone!**", userInfo.getKey()))).queue();
+                message.editMessage(Messages.custom("Your key", Color.GRAY, String.format("||%s||\n**DO NOT " +
+                        "share this key with anyone!**", userInfo.getKey()))).queue();
+            });
         });
     }
 

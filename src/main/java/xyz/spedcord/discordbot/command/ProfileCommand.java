@@ -39,27 +39,31 @@ public class ProfileCommand extends AbstractCommand {
         }
 
         User user = (User) iMentionable;
-        xyz.spedcord.discordbot.api.User userInfo = apiClient.getUserInfo(user.getIdLong(), false);
+        Message message = channel.sendMessage(Messages.pleaseWait()).complete();
 
-        if (userInfo == null) {
-            channel.sendMessage(Messages.error(user.getAsTag() + " is not registered!")).queue();
-            return;
-        }
+        apiClient.getExecutorService().submit(() -> {
+            xyz.spedcord.discordbot.api.User userInfo = apiClient.getUserInfo(user.getIdLong(), false);
 
-        Company company = userInfo.getCompanyId() == -1 ? null : apiClient.getCompanyInfo(userInfo.getCompanyId());
+            if (userInfo == null) {
+                message.editMessage(Messages.error(user.getAsTag() + " is not registered!")).queue();
+                return;
+            }
 
-        EmbedBuilder embedBuilder = new EmbedBuilder()
-                .setTitle("Profile of " + user.getAsTag())
-                .setDescription(String.format("ID: %d\nCompany: %s", userInfo.getId(),
-                        company == null ? "None" : company.getName()))
-                .setThumbnail(user.getEffectiveAvatarUrl())
-                .setColor(Color.WHITE)
-                .setTimestamp(Instant.now());
-        if(Arrays.asList(userInfo.getFlags()).contains(xyz.spedcord.discordbot.api.User.Flag.CHEATER)) {
-            embedBuilder.addField(":warning: Warning :warning:", "This user is flagged as a cheater!", false);
-        }
+            Company company = userInfo.getCompanyId() == -1 ? null : apiClient.getCompanyInfo(userInfo.getCompanyId());
 
-        channel.sendMessage(embedBuilder.build()).queue();
+            EmbedBuilder embedBuilder = new EmbedBuilder()
+                    .setTitle("Profile of " + user.getAsTag())
+                    .setDescription(String.format("ID: %d\nCompany: %s", userInfo.getId(),
+                            company == null ? "None" : company.getName()))
+                    .setThumbnail(user.getEffectiveAvatarUrl())
+                    .setColor(Color.WHITE)
+                    .setTimestamp(Instant.now());
+            if(Arrays.asList(userInfo.getFlags()).contains(xyz.spedcord.discordbot.api.User.Flag.CHEATER)) {
+                embedBuilder.addField(":warning: Warning :warning:", "This user is flagged as a cheater!", false);
+            }
+
+            message.editMessage(embedBuilder.build()).queue();
+        });
     }
 
     @SubCommand(isDefault = true)

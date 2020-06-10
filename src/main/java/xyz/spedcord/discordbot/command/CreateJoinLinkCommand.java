@@ -7,10 +7,10 @@ import net.dv8tion.jda.api.MessageBuilder;
 import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.entities.TextChannel;
-import xyz.spedcord.discordbot.api.ApiClient;
 import xyz.spedcord.discordbot.api.Company;
 import xyz.spedcord.discordbot.message.Messages;
 import xyz.spedcord.discordbot.util.CommandUtil;
+import xyz.spedcord.discordbot.api.ApiClient;
 
 import java.awt.*;
 import java.util.Set;
@@ -30,35 +30,39 @@ public class CreateJoinLinkCommand extends AbstractCommand {
             return;
         }
 
-        Company companyInfo = apiClient.getCompanyInfo(channel.getGuild().getIdLong());
-        if (companyInfo == null) {
-            channel.sendMessage(Messages.error("This server is not registered as a vtc!")).queue();
-            return;
-        }
+        Message message = channel.sendMessage(Messages.pleaseWait()).complete();
 
-        int maxUses = 1;
-        if (args.length >= 1) {
-            try {
-                maxUses = Integer.parseInt(args[0]);
-            } catch (NumberFormatException ignored) {
-                channel.sendMessage(Messages.error("Invalid maxUses parameter!")).queue();
+        apiClient.getExecutorService().submit(() -> {
+            Company companyInfo = apiClient.getCompanyInfo(channel.getGuild().getIdLong());
+            if (companyInfo == null) {
+                message.editMessage(Messages.error("This server is not registered as a vtc!")).queue();
                 return;
             }
 
-            if (maxUses < 1) {
-                channel.sendMessage(Messages.error("The maxUses parameter must be greater than 0!")).queue();
+            int maxUses = 1;
+            if (args.length >= 1) {
+                try {
+                    maxUses = Integer.parseInt(args[0]);
+                } catch (NumberFormatException ignored) {
+                    message.editMessage(Messages.error("Invalid maxUses parameter!")).queue();
+                    return;
+                }
+
+                if (maxUses < 1) {
+                    message.editMessage(Messages.error("The maxUses parameter must be greater than 0!")).queue();
+                    return;
+                }
+            }
+
+            ApiClient.ApiResponse apiResponse = apiClient.createJoinLink(companyInfo.getId(), maxUses);
+            if (apiResponse.status != 200) {
+                message.editMessage(Messages.error("Failed to create join link, please try again later.")).queue();
                 return;
             }
-        }
 
-        ApiClient.ApiResponse apiResponse = apiClient.createJoinLink(companyInfo.getId(), maxUses);
-        if (apiResponse.status != 200) {
-            channel.sendMessage(Messages.error("Failed to create join link, please try again later.")).queue();
-            return;
-        }
-
-        channel.sendMessage(Messages.success("Your join link was created: " + apiResponse.body.trim()
-                + "\nThis link can be used " + maxUses + " times.")).queue();
+            message.editMessage(Messages.success("Your join link was created: " + apiResponse.body.trim()
+                    + "\nThis link can be used " + maxUses + " times.")).queue();
+        });
     }
 
     @Override

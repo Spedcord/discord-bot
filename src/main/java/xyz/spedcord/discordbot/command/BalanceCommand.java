@@ -31,16 +31,20 @@ public class BalanceCommand extends AbstractCommand {
             mention = Optional.of(member.getUser());
         }
 
+        Message message = channel.sendMessage(Messages.pleaseWait()).complete();
+
         User user = mention.get();
-        xyz.spedcord.discordbot.api.User userInfo = apiClient.getUserInfo(user.getIdLong(), false);
+        apiClient.getExecutorService().submit(() -> {
+            xyz.spedcord.discordbot.api.User userInfo = apiClient.getUserInfo(user.getIdLong(), false);
 
-        if (userInfo == null) {
-            channel.sendMessage(Messages.error(user.getAsTag() + " is not registered!")).queue();
-            return;
-        }
+            if (userInfo == null) {
+                message.editMessage(Messages.error(user.getAsTag() + " is not registered!")).queue();
+                return;
+            }
 
-        channel.sendMessage(Messages.custom("Balance", Color.ORANGE, String.format("Balance of %s: `%s`",
-                user.getAsTag(), new DecimalFormat("#,###").format(userInfo.getBalance()) + "$"))).queue();
+            message.editMessage(Messages.custom("Balance", Color.ORANGE, String.format("Balance of %s: `%s`",
+                    user.getAsTag(), new DecimalFormat("#,###").format(userInfo.getBalance()) + "$"))).queue();
+        });
     }
 
     @SubCommand(isDefault = true)

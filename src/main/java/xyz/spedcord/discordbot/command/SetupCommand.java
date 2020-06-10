@@ -33,28 +33,30 @@ public class SetupCommand extends AbstractCommand {
 
         Message message = channel.sendMessage(Messages.custom("Please wait", Color.ORANGE, "Please wait while I check some things in the background.")).complete();
 
-        User userInfo = apiClient.getUserInfo(member.getIdLong(), false);
-        if (userInfo == null) {
-            message.editMessage(Messages.error("You are not registered. [Please register an account.](https://api.spedcord.xyz/user/register)")).queue();
-            return;
-        }
+        apiClient.getExecutorService().submit(() -> {
+            User userInfo = apiClient.getUserInfo(member.getIdLong(), false);
+            if (userInfo == null) {
+                message.editMessage(Messages.error("You are not registered. [Please register an account.](https://api.spedcord.xyz/user/register)")).queue();
+                return;
+            }
 
-        Company companyInfo = apiClient.getCompanyInfo(channel.getGuild().getIdLong());
-        if (companyInfo != null) {
-            message.editMessage(Messages.success("This server is already a fully functioning vtc!")).queue();
-            return;
-        }
+            Company companyInfo = apiClient.getCompanyInfo(channel.getGuild().getIdLong());
+            if (companyInfo != null) {
+                message.editMessage(Messages.success("This server is already a fully functioning vtc!")).queue();
+                return;
+            }
 
-        if (args.length == 0) {
-            message.editMessage(Messages.error("Please specify a name for your vtc!\n`&setup <vtc name>`")).queue();
-            return;
-        }
-        String name = String.join(" ", args);
+            if (args.length == 0) {
+                message.editMessage(Messages.error("Please specify a name for your vtc!\n`&setup <vtc name>`")).queue();
+                return;
+            }
+            String name = String.join(" ", args);
 
-        ApiClient.ApiResponse apiResponse = apiClient.registerCompany(name, channel.getGuild().getIdLong(), channel.getGuild().getOwnerIdLong());
+            ApiClient.ApiResponse apiResponse = apiClient.registerCompany(name, channel.getGuild().getIdLong(), channel.getGuild().getOwnerIdLong());
 
-        message.editMessage(apiResponse.status == 200 ? Messages.success("This server is now registered as a vtc!")
-                : Messages.error("Failed to register server")).queue();
+            message.editMessage(apiResponse.status == 200 ? Messages.success("This server is now registered as a vtc!")
+                    : Messages.error("Failed to register server")).queue();
+        });
     }
 
     @Override

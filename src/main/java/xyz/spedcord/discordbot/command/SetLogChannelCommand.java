@@ -43,7 +43,8 @@ public class SetLogChannelCommand extends AbstractCommand {
     @Override
     public Message info(Member member, String prefix, Set<String> labels) {
         return new MessageBuilder().setEmbed(Messages.custom("&setlogchannel [#channel]", Color.PINK,
-                "Sets the log channel for deliveries.\n\n**Requires `Spedcord Bot Admin` role**")).build();
+                "Sets the log channel for deliveries.\n\n**Requires `Spedcord Bot Admin` role " +
+                        "or `Administrator` permission**")).build();
     }
 
 }
