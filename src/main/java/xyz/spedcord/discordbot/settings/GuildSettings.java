@@ -4,10 +4,12 @@ public class GuildSettings {
 
     private final long guildId;
     private long logChannelId;
+    private long commandChannelId;
 
-    public GuildSettings(long guildId, long logChannelId) {
+    public GuildSettings(long guildId, long logChannelId, long commandChannelId) {
         this.guildId = guildId;
         this.logChannelId = logChannelId;
+        this.commandChannelId = commandChannelId;
     }
 
     public long getGuildId() {
@@ -20,6 +22,14 @@ public class GuildSettings {
 
     public void setLogChannelId(long logChannelId) {
         this.logChannelId = logChannelId;
+    }
+
+    public long getCommandChannelId() {
+        return commandChannelId;
+    }
+
+    public void setCommandChannelId(long commandChannelId) {
+        this.commandChannelId = commandChannelId;
     }
 
 }
