@@ -26,6 +26,10 @@ public class SetupCommand extends AbstractCommand {
 
     @SubCommand(isDefault = true)
     public void onExecution(CommandEvent event, Member member, TextChannel channel, String[] args) {
+        if(!CommandUtil.isInCommandChannel(channel)) {
+            return;
+        }
+
         if (!CommandUtil.isBotAdmin(member)) {
             event.respond(Messages.error("You need the `Spedcord Bot Admin` role or `Administrator` permission for this command."));
             return;

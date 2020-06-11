@@ -12,6 +12,7 @@ import net.dv8tion.jda.api.entities.User;
 import xyz.spedcord.discordbot.api.ApiClient;
 import xyz.spedcord.discordbot.api.Company;
 import xyz.spedcord.discordbot.message.Messages;
+import xyz.spedcord.discordbot.util.CommandUtil;
 
 import java.awt.*;
 import java.text.DecimalFormat;
@@ -28,6 +29,10 @@ public class CompanyCommand extends AbstractCommand {
 
     @SubCommand(isDefault = true)
     public void onExecution(CommandEvent event, Member member, TextChannel channel, String[] args) {
+        if(!CommandUtil.isInCommandChannel(channel)) {
+            return;
+        }
+
         Message message = channel.sendMessage(Messages.pleaseWait()).complete();
 
         apiClient.getExecutorService().submit(() -> {
@@ -45,6 +50,7 @@ public class CompanyCommand extends AbstractCommand {
                     .appendDescription("\nMember: " + companyInfo.getMemberDiscordIds().size())
                     .appendDescription("\nOwner: " + (owner == null ? "Unknown" : owner.getAsTag()))
                     .appendDescription("\nBalance: " + new DecimalFormat("#,###").format(companyInfo.getBalance()) + "$")
+                    .appendDescription("\nGlobal ranking (most $): " + companyInfo.getRank())
                     .setFooter("Requested by " + member.getUser().getAsTag(), member.getUser().getEffectiveAvatarUrl())
                     .setTimestamp(Instant.now())
                     .build()).queue();

@@ -10,6 +10,7 @@ import net.dv8tion.jda.api.entities.TextChannel;
 import net.dv8tion.jda.api.entities.User;
 import xyz.spedcord.discordbot.api.ApiClient;
 import xyz.spedcord.discordbot.message.Messages;
+import xyz.spedcord.discordbot.util.CommandUtil;
 
 import java.awt.*;
 import java.text.DecimalFormat;
@@ -26,6 +27,10 @@ public class BalanceCommand extends AbstractCommand {
 
     @SubCommand()
     public void onExecution(CommandEvent event, Member member, TextChannel channel, String[] args) {
+        if(!CommandUtil.isInCommandChannel(channel)) {
+            return;
+        }
+
         Optional<User> mention = event.getFirstUserMention();
         if (mention.isEmpty()) {
             mention = Optional.of(member.getUser());

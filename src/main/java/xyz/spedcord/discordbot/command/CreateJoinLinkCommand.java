@@ -25,6 +25,10 @@ public class CreateJoinLinkCommand extends AbstractCommand {
 
     @SubCommand(isDefault = true)
     public void onExecution(CommandEvent event, Member member, TextChannel channel, String[] args) {
+        if(!CommandUtil.isInCommandChannel(channel)) {
+            return;
+        }
+
         if (!CommandUtil.isBotAdmin(member)) {
             event.respond(Messages.error("You need the `Spedcord Bot Admin` role or `Administrator` permission for this command."));
             return;
@@ -54,7 +58,7 @@ public class CreateJoinLinkCommand extends AbstractCommand {
                 }
             }
 
-            ApiClient.ApiResponse apiResponse = apiClient.createJoinLink(companyInfo.getId(), maxUses);
+            ApiClient.ApiResponse apiResponse = apiClient.createJoinLink(companyInfo.getId(), maxUses, null);
             if (apiResponse.status != 200) {
                 message.editMessage(Messages.error("Failed to create join link, please try again later.")).queue();
                 return;
