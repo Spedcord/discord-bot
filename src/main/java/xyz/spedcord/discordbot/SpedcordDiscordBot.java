@@ -10,6 +10,8 @@ import io.javalin.http.HandlerType;
 import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.JDABuilder;
 import net.dv8tion.jda.api.entities.Activity;
+import net.dv8tion.jda.api.events.guild.GuildJoinEvent;
+import net.dv8tion.jda.api.hooks.ListenerAdapter;
 import net.dv8tion.jda.api.requests.GatewayIntent;
 import net.dv8tion.jda.api.utils.MemberCachePolicy;
 import xyz.spedcord.common.config.Config;
@@ -17,9 +19,13 @@ import xyz.spedcord.discordbot.api.ApiClient;
 import xyz.spedcord.discordbot.command.*;
 import xyz.spedcord.discordbot.javalin.KoFiHandler;
 import xyz.spedcord.discordbot.javalin.LocalhostHandler;
+import xyz.spedcord.discordbot.message.Messages;
 import xyz.spedcord.discordbot.settings.GuildSettingsProvider;
+import xyz.spedcord.discordbot.util.CommandUtil;
 
+import javax.annotation.Nonnull;
 import javax.security.auth.login.LoginException;
+import java.awt.*;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.IOException;
@@ -57,10 +63,18 @@ public class SpedcordDiscordBot {
         )
                 .setToken(token)
                 .setMemberCachePolicy(MemberCachePolicy.ALL)
+                .addEventListeners(new ListenerAdapter() {
+                    @Override
+                    public void onGuildJoin(@Nonnull GuildJoinEvent event) {
+                        event.getGuild().getSystemChannel().sendMessage(Messages.custom("Welcome to Spedcord",
+                                Color.GREEN, "To use Spedcord commands you need to set the bot channel with `&setBotChannel`.")).queue();
+                    }
+                })
                 .build()
                 .awaitReady();
 
         GuildSettingsProvider settingsProvider = new GuildSettingsProvider(guildSettingsConfig);
+        CommandUtil.init(settingsProvider);
 
         ApiClient apiClient = new ApiClient();
 
@@ -77,6 +91,8 @@ public class SpedcordDiscordBot {
                 .put(new CancelJobCommand(apiClient), "canceljob")
                 .put(new BalanceCommand(apiClient), "balance")
                 .put(new LeaveCompanyCommand(apiClient), "leavecompany")
+                .put(new SetCommandChannelCommand(settingsProvider), "setcommandchannel")
+                //.put(new ShopCommand(apiClient), "shop")
                 .put(new HelpCommand(), "help")
                 .activate();
 
