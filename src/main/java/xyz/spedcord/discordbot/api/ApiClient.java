@@ -5,6 +5,7 @@ import xyz.spedcord.discordbot.SpedcordDiscordBot;
 import java.io.*;
 import java.net.HttpURLConnection;
 import java.net.URL;
+import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -61,11 +62,12 @@ public class ApiClient {
             {
                 put("Authorization", "");
             }
-        }, SpedcordDiscordBot.GSON.toJson(new Company(-1, serverId, name, ownerId, 0, new ArrayList<>())));
+        }, SpedcordDiscordBot.GSON.toJson(new Company(-1, serverId, name, ownerId, 0, 0, new ArrayList<>())));
     }
 
-    public ApiResponse createJoinLink(int companyId, int maxUses) {
-        return makeRequestSilent("/company/createjoinlink/" + companyId + "?maxUses=" + maxUses,
+    public ApiResponse createJoinLink(int companyId, int maxUses, String customId) {
+        return makeRequestSilent("/company/createjoinlink/" + companyId + "?maxUses="
+                        + maxUses + (customId == null ? "" : "&customId=" + customId),
                 "POST", new HashMap<>(), new HashMap<>() {
                     {
                         put("Authorization", "");
@@ -79,6 +81,35 @@ public class ApiClient {
                     {
                         put("companyDiscordId", String.valueOf(companyDiscordId));
                         put("userDiscordId", String.valueOf(userDiscordId));
+                    }
+                }, new HashMap<>() {
+                    {
+                        put("Authorization", "");
+                    }
+                }, "");
+    }
+
+    public ApiResponse buyCustomInvite(long companyDiscordId, String id) {
+        return makeRequestSilent("/company/shop",
+                "POST", new HashMap<>() {
+                    {
+                        put("discordServerId", String.valueOf(companyDiscordId));
+                        put("item", "custom perma invite");
+                        put("joinId", id);
+                    }
+                }, new HashMap<>() {
+                    {
+                        put("Authorization", "");
+                    }
+                }, "");
+    }
+
+    public ApiResponse buyItem(long companyDiscordId, String item) {
+        return makeRequestSilent("/company/shop",
+                "POST", new HashMap<>() {
+                    {
+                        put("discordServerId", String.valueOf(companyDiscordId));
+                        put("item", URLEncoder.encode(item, StandardCharsets.UTF_8));
                     }
                 }, new HashMap<>() {
                     {

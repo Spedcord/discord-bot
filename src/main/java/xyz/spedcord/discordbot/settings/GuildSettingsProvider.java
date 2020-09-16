@@ -18,7 +18,7 @@ public class GuildSettingsProvider {
     public GuildSettings getGuildSettings(long guildId) {
         String rawSettings = config.get(guildId + "");
         if (rawSettings == null) {
-            GuildSettings guildSettings = new GuildSettings(guildId, -1);
+            GuildSettings guildSettings = new GuildSettings(guildId, -1, -1);
             save(guildSettings);
             return guildSettings;
         }

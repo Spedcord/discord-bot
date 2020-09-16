@@ -10,6 +10,7 @@ import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.entities.User;
 import xyz.spedcord.discordbot.message.Messages;
+import xyz.spedcord.discordbot.util.CommandUtil;
 
 import java.awt.*;
 import java.time.Instant;
@@ -21,6 +22,10 @@ public class HelpCommand extends AbstractHelpCommand {
 
     @Override
     public void provideGeneralHelp(CommandEvent event, String prefix, Map<String, ICommand> commands) {
+        if(!CommandUtil.isInCommandChannel(event.getTextChannel())) {
+            return;
+        }
+
         Member member = event.getMember();
         User user = member.getUser();
 
@@ -47,6 +52,10 @@ public class HelpCommand extends AbstractHelpCommand {
 
     @Override
     public void provideSpecificHelp(CommandEvent event, String prefix, ICommand command, Set<String> labels) {
+        if(!CommandUtil.isInCommandChannel(event.getTextChannel())) {
+            return;
+        }
+
         event.respond(command.info(event.getMember(), prefix, labels));
     }
 

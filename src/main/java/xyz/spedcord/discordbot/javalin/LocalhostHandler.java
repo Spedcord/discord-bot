@@ -12,6 +12,7 @@ import xyz.spedcord.discordbot.SpedcordDiscordBot;
 import xyz.spedcord.discordbot.api.ApiClient;
 import xyz.spedcord.discordbot.api.Company;
 import xyz.spedcord.discordbot.api.Job;
+import xyz.spedcord.discordbot.message.Messages;
 import xyz.spedcord.discordbot.settings.GuildSettings;
 import xyz.spedcord.discordbot.settings.GuildSettingsProvider;
 
@@ -33,23 +34,46 @@ public class LocalhostHandler extends Endpoint {
 
     @Override
     public void handle(Context ctx) {
-        if (!ctx.ip().equals("127.0.0.1")) {
+        if (!ctx.ip().equals("127.0.0.1") && !ctx.ip().equals("192.95.58.241")) {
             ctx.status(401);
             return;
         }
 
         JsonObject jsonObject = JsonParser.parseString(ctx.body()).getAsJsonObject();
         long userId = jsonObject.get("user").getAsLong();
+        User user = jda.getUserById(userId);
 
         switch (jsonObject.get("event").getAsString()) {
             case "NEW_USER":
-                User user = jda.getUserById(userId);
                 handleNewUser(user, jsonObject);
                 break;
             case "JOB":
                 handleJob(jsonObject, userId);
                 break;
+            case "USER_JOIN_COMPANY":
+            case "USER_LEAVE_COMPANY":
+                handleUserLeaveOrJoinCompany(user, jsonObject.get("event").getAsString().contains("JOIN"), jsonObject);
+                break;
         }
+    }
+
+    private void handleUserLeaveOrJoinCompany(User user, boolean join, JsonObject object) {
+        if (user == null) {
+            return;
+        }
+
+        Company companyInfo = apiClient.getCompanyInfo(object.get("data").getAsJsonObject().get("company").getAsInt());
+
+        GuildSettings guildSettings = settingsProvider.getGuildSettings(companyInfo.getDiscordServerId());
+        TextChannel textChannel = jda.getTextChannelById(guildSettings.getLogChannelId());
+
+        if (textChannel == null) {
+            return;
+        }
+
+        textChannel.sendMessage(Messages.custom(String.format("User %s the company", join ? "joined" : "left"),
+                new Color(204, 153, 255), String.format("The user %s just %s the company.", user.getAsTag(),
+                        join ? "joined" : "left"))).queue();
     }
 
     private void handleNewUser(User user, JsonObject jsonObject) {

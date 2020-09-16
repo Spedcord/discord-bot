@@ -9,6 +9,7 @@ import net.dv8tion.jda.api.entities.*;
 import xyz.spedcord.discordbot.api.ApiClient;
 import xyz.spedcord.discordbot.api.Company;
 import xyz.spedcord.discordbot.message.Messages;
+import xyz.spedcord.discordbot.util.CommandUtil;
 
 import java.awt.*;
 import java.time.Instant;
@@ -26,6 +27,10 @@ public class ProfileCommand extends AbstractCommand {
 
     @SubCommand(args = "<@!?\\d+>")
     public void onExecution(CommandEvent event, Member member, TextChannel channel, String[] args) {
+        if(!CommandUtil.isInCommandChannel(channel)) {
+            return;
+        }
+
         Optional<? extends IMentionable> mention = event.getFirstMention(Message.MentionType.USER);
         if (mention.isEmpty()) {
             channel.sendMessage(Messages.error("You need to mention a member!")).queue();

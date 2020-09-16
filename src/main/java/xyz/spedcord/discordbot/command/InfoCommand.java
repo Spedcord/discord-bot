@@ -27,6 +27,10 @@ public class InfoCommand extends AbstractCommand {
 
     @SubCommand(isDefault = true)
     public void onExecution(CommandEvent event, Member member, TextChannel channel, String[] args) {
+        if(!CommandUtil.isInCommandChannel(channel)) {
+            return;
+        }
+
         EmbedBuilder embedBuilder = new EmbedBuilder().setTitle("Spedcord Bot Info")
                 .setDescription("Made by [Cerus](https://cerus-dev.de)\nGitHub repository: " +
                         "[Click here](https://github.com/Spedcord)\nGuilds: " + event.getJDA().getGuilds().size())
