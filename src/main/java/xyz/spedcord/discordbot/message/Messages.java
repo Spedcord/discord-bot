@@ -1,6 +1,7 @@
 package xyz.spedcord.discordbot.message;
 
 import net.dv8tion.jda.api.EmbedBuilder;
+import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.entities.MessageEmbed;
 
 import java.awt.*;
@@ -8,7 +9,13 @@ import java.time.Instant;
 
 public class Messages {
 
+    private static JDA jda;
+
     private Messages() {
+    }
+
+    public static void setJda(JDA jda) {
+        Messages.jda = jda;
     }
 
     public static MessageEmbed error(String desc) {
@@ -37,6 +44,7 @@ public class Messages {
                 .setColor(color)
                 .setDescription(desc)
                 .setTimestamp(Instant.now())
+                .setFooter("Powered by Spedcord", jda.getSelfUser().getEffectiveAvatarUrl())
                 .build();
     }
 

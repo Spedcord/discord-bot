@@ -62,7 +62,7 @@ public class ApiClient {
             {
                 put("Authorization", "");
             }
-        }, SpedcordDiscordBot.GSON.toJson(new Company(-1, serverId, name, ownerId, 0, 0, new ArrayList<>())));
+        }, SpedcordDiscordBot.GSON.toJson(new Company(-1, serverId, name, ownerId, 0, 0, new ArrayList<>(), new ArrayList<>(), "")));
     }
 
     public ApiResponse createJoinLink(int companyId, int maxUses, String customId) {
@@ -76,7 +76,7 @@ public class ApiClient {
     }
 
     public ApiResponse kickMember(long companyDiscordId, long userDiscordId) {
-        return makeRequestSilent("/company/kickmember",
+        return makeRequestSilent("/company/member/kick",
                 "POST", new HashMap<>() {
                     {
                         put("companyDiscordId", String.valueOf(companyDiscordId));
@@ -205,6 +205,7 @@ public class ApiClient {
         String s;
         while ((s = bufferedReader.readLine()) != null)
             responseBodyBuilder.append(s).append('\n');
+        bufferedReader.close();
 
         return new ApiResponse(connection.getResponseCode(), responseBodyBuilder.toString().trim());
     }

@@ -36,7 +36,8 @@ import java.util.concurrent.TimeUnit;
 
 public class SpedcordDiscordBot {
 
-    public static final boolean DEV = false;
+    public static final boolean DEV = System.getenv("SPEDCORD_DEV") != null
+            && System.getenv("SPEDCORD_DEV").equals("true");
     public static final Gson GSON = new GsonBuilder()
             .setPrettyPrinting()
             .setLongSerializationPolicy(LongSerializationPolicy.STRING)
@@ -72,6 +73,7 @@ public class SpedcordDiscordBot {
                 })
                 .build()
                 .awaitReady();
+        Messages.setJda(jda);
 
         GuildSettingsProvider settingsProvider = new GuildSettingsProvider(guildSettingsConfig);
         CommandUtil.init(settingsProvider);
@@ -135,7 +137,7 @@ public class SpedcordDiscordBot {
     }
 
     private void startServer(JDA jda, ApiClient apiClient, GuildSettingsProvider settingsProvider) {
-        Javalin app = Javalin.create().start("192.95.58.241", 5675);
+        Javalin app = Javalin.create().start(DEV ? "localhost" : "192.95.58.241", 5675);
         HttpServer server = new HttpServer(app);
         server.endpoint("/", HandlerType.POST, new LocalhostHandler(jda, apiClient, settingsProvider));
         server.endpoint("/kofi", HandlerType.POST, new KoFiHandler(jda));

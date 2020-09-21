@@ -18,6 +18,7 @@ import java.awt.*;
 import java.text.DecimalFormat;
 import java.time.Instant;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 public class CompanyCommand extends AbstractCommand {
 
@@ -29,7 +30,7 @@ public class CompanyCommand extends AbstractCommand {
 
     @SubCommand(isDefault = true)
     public void onExecution(CommandEvent event, Member member, TextChannel channel, String[] args) {
-        if(!CommandUtil.isInCommandChannel(channel)) {
+        if (!CommandUtil.isInCommandChannel(channel)) {
             return;
         }
 
@@ -45,14 +46,18 @@ public class CompanyCommand extends AbstractCommand {
             User owner = event.getJDA().getUserById(companyInfo.getOwnerDiscordId());
             message.editMessage(new EmbedBuilder()
                     .setTitle("Company Info")
-                    .setDescription("ID: " + companyInfo.getId())
-                    .appendDescription("\nName: " + companyInfo.getName())
-                    .appendDescription("\nMember: " + companyInfo.getMemberDiscordIds().size())
-                    .appendDescription("\nOwner: " + (owner == null ? "Unknown" : owner.getAsTag()))
-                    .appendDescription("\nBalance: " + new DecimalFormat("#,###").format(companyInfo.getBalance()) + "$")
-                    .appendDescription("\nGlobal ranking (most $): " + companyInfo.getRank())
+                    .addField("ID", String.valueOf(companyInfo.getId()), true)
+                    .addField("Name", companyInfo.getName(), true)
+                    .addField("Member", String.valueOf(companyInfo.getMemberDiscordIds().size()), true)
+                    .addField("Owner", (owner == null ? "Unknown" : owner.getAsTag()), true)
+                    .addField("Balance", "$" + new DecimalFormat("#,###").format(companyInfo.getBalance()), true)
+                    .addField("Global ranking", String.valueOf(companyInfo.getRank()), true)
+                    .addField("Roles", companyInfo.getRoles().stream()
+                            .map(companyRole -> companyRole.getName() + " [" + companyRole.getMemberDiscordIds().size()
+                                    + " members]").collect(Collectors.joining(", ")), false)
                     .setFooter("Requested by " + member.getUser().getAsTag(), member.getUser().getEffectiveAvatarUrl())
                     .setTimestamp(Instant.now())
+                    .setColor(Color.RED)
                     .build()).queue();
         });
     }

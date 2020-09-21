@@ -7,6 +7,7 @@ import net.dv8tion.jda.api.MessageBuilder;
 import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.entities.TextChannel;
+import xyz.spedcord.discordbot.SpedcordDiscordBot;
 import xyz.spedcord.discordbot.api.ApiClient;
 import xyz.spedcord.discordbot.api.Company;
 import xyz.spedcord.discordbot.api.User;
@@ -26,7 +27,7 @@ public class SetupCommand extends AbstractCommand {
 
     @SubCommand(isDefault = true)
     public void onExecution(CommandEvent event, Member member, TextChannel channel, String[] args) {
-        if(!CommandUtil.isInCommandChannel(channel)) {
+        if (!CommandUtil.isInCommandChannel(channel)) {
             return;
         }
 
@@ -40,7 +41,8 @@ public class SetupCommand extends AbstractCommand {
         apiClient.getExecutorService().submit(() -> {
             User userInfo = apiClient.getUserInfo(member.getIdLong(), false);
             if (userInfo == null) {
-                message.editMessage(Messages.error("You are not registered. [Please register an account.](https://api.spedcord.xyz/user/register)")).queue();
+                message.editMessage(Messages.error("You are not registered. [Please register an account.]("
+                        + (SpedcordDiscordBot.DEV ? "http://localhost:81" : "https://api.spedcord.xyz") + "/user/register)")).queue();
                 return;
             }
 
@@ -56,10 +58,19 @@ public class SetupCommand extends AbstractCommand {
             }
             String name = String.join(" ", args);
 
+            if(name.length() >= 24) {
+                message.editMessage(Messages.error("The name has to be shorter than 25 characters.")).queue();
+                return;
+            }
+            if(name.length() <= 4) {
+                message.editMessage(Messages.error("The name has to be longer than 4 characters.")).queue();
+                return;
+            }
+
             ApiClient.ApiResponse apiResponse = apiClient.registerCompany(name, channel.getGuild().getIdLong(), channel.getGuild().getOwnerIdLong());
 
             message.editMessage(apiResponse.status == 200 ? Messages.success("This server is now registered as a vtc!")
-                    : Messages.error("Failed to register server")).queue();
+                    : Messages.error("Failed to register server: " + apiResponse.body)).queue();
         });
     }
 

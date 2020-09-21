@@ -19,8 +19,12 @@ import xyz.spedcord.discordbot.settings.GuildSettingsProvider;
 import java.awt.*;
 import java.text.DecimalFormat;
 import java.time.Instant;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 public class LocalhostHandler extends Endpoint {
+
+    private final ExecutorService executorService = Executors.newSingleThreadExecutor();
 
     private final JDA jda;
     private final ApiClient apiClient;
@@ -43,18 +47,61 @@ public class LocalhostHandler extends Endpoint {
         long userId = jsonObject.get("user").getAsLong();
         User user = jda.getUserById(userId);
 
-        switch (jsonObject.get("event").getAsString()) {
-            case "NEW_USER":
-                handleNewUser(user, jsonObject);
-                break;
-            case "JOB":
-                handleJob(jsonObject, userId);
-                break;
-            case "USER_JOIN_COMPANY":
-            case "USER_LEAVE_COMPANY":
-                handleUserLeaveOrJoinCompany(user, jsonObject.get("event").getAsString().contains("JOIN"), jsonObject);
-                break;
+        ctx.status(200);
+
+        executorService.submit(() -> {
+            switch (jsonObject.get("event").getAsString()) {
+                case "NEW_USER":
+                    handleNewUser(user, jsonObject);
+                    break;
+                case "JOB":
+                    handleJob(jsonObject, userId);
+                    break;
+                case "USER_JOIN_COMPANY":
+                case "USER_LEAVE_COMPANY":
+                    handleUserLeaveOrJoinCompany(user, jsonObject.get("event").getAsString().contains("JOIN"), jsonObject);
+                    break;
+                case "USER_ROLE_UPDATE":
+                    handleUserRoleUpdate(user, jsonObject);
+                    break;
+                case "WARN":
+                    handleWarn(jsonObject);
+                    break;
+            }
+        });
+    }
+
+    private void handleWarn(JsonObject jsonObject) {
+        Company companyInfo = apiClient.getCompanyInfo(jsonObject.get("data").getAsJsonObject().get("company").getAsInt());
+
+        GuildSettings guildSettings = settingsProvider.getGuildSettings(companyInfo.getDiscordServerId());
+        TextChannel textChannel = jda.getTextChannelById(guildSettings.getLogChannelId());
+
+        if (textChannel == null) {
+            return;
         }
+
+        textChannel.sendMessage(Messages.custom("Warning",
+                new Color(255, 170, 0), jsonObject.get("data").getAsJsonObject().get("msg").getAsString())).queue();
+    }
+
+    private void handleUserRoleUpdate(User user, JsonObject object) {
+        if (user == null) {
+            return;
+        }
+
+        Company companyInfo = apiClient.getCompanyInfo(object.get("data").getAsJsonObject().get("company").getAsInt());
+
+        GuildSettings guildSettings = settingsProvider.getGuildSettings(companyInfo.getDiscordServerId());
+        TextChannel textChannel = jda.getTextChannelById(guildSettings.getLogChannelId());
+
+        if (textChannel == null) {
+            return;
+        }
+
+        textChannel.sendMessage(Messages.custom("Member role changed",
+                new Color(102, 204, 255), String.format("The user %s is now a member of the role %s.",
+                        user.getAsTag(), object.get("data").getAsJsonObject().get("role").getAsString()))).queue();
     }
 
     private void handleUserLeaveOrJoinCompany(User user, boolean join, JsonObject object) {
@@ -89,6 +136,7 @@ public class LocalhostHandler extends Endpoint {
                                 jsonObject.get("data").getAsJsonObject().get("key").getAsString()))
                         .setColor(Color.WHITE)
                         .setTimestamp(Instant.now())
+                        .setFooter("Powered by Spedcord", jda.getSelfUser().getEffectiveAvatarUrl())
                         .build()).queue());
     }
 
