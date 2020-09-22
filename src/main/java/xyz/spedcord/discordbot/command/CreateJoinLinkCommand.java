@@ -13,6 +13,7 @@ import xyz.spedcord.discordbot.util.CommandUtil;
 
 import java.awt.*;
 import java.util.Set;
+import java.util.concurrent.TimeUnit;
 
 public class CreateJoinLinkCommand extends AbstractCommand {
 
@@ -20,6 +21,7 @@ public class CreateJoinLinkCommand extends AbstractCommand {
 
     public CreateJoinLinkCommand(ApiClient apiClient) {
         this.apiClient = apiClient;
+        this.cooldown = TimeUnit.SECONDS.toMillis(10);
     }
 
     @SubCommand(isDefault = true)

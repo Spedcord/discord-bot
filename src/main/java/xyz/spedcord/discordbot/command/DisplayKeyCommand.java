@@ -10,6 +10,7 @@ import xyz.spedcord.discordbot.message.Messages;
 
 import java.awt.*;
 import java.util.Set;
+import java.util.concurrent.TimeUnit;
 
 public class DisplayKeyCommand extends AbstractCommand {
 
@@ -17,6 +18,7 @@ public class DisplayKeyCommand extends AbstractCommand {
 
     public DisplayKeyCommand(ApiClient apiClient) {
         this.apiClient = apiClient;
+        this.cooldown = TimeUnit.SECONDS.toMillis(10);
     }
 
     @SubCommand(guildOnly = false)

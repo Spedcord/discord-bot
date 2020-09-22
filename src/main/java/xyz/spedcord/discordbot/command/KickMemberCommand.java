@@ -16,6 +16,7 @@ import xyz.spedcord.discordbot.util.CommandUtil;
 import java.awt.*;
 import java.util.Optional;
 import java.util.Set;
+import java.util.concurrent.TimeUnit;
 
 public class KickMemberCommand extends AbstractCommand {
 
@@ -23,6 +24,7 @@ public class KickMemberCommand extends AbstractCommand {
 
     public KickMemberCommand(ApiClient apiClient) {
         this.apiClient = apiClient;
+        this.cooldown = TimeUnit.SECONDS.toMillis(10);
     }
 
     @SubCommand(args = "<@!?\\d+>")

@@ -10,6 +10,7 @@ import xyz.spedcord.discordbot.message.Messages;
 
 import java.awt.*;
 import java.util.Set;
+import java.util.concurrent.TimeUnit;
 
 public class ChangeKeyCommand extends AbstractCommand {
 
@@ -17,6 +18,7 @@ public class ChangeKeyCommand extends AbstractCommand {
 
     public ChangeKeyCommand(ApiClient apiClient) {
         this.apiClient = apiClient;
+        this.cooldown = TimeUnit.SECONDS.toMillis(10);
     }
 
     @SubCommand(guildOnly = false)

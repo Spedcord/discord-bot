@@ -16,6 +16,7 @@ import xyz.spedcord.discordbot.util.SyncUtil;
 
 import java.awt.*;
 import java.util.Set;
+import java.util.concurrent.TimeUnit;
 
 public class SetupCommand extends AbstractCommand {
 
@@ -23,6 +24,7 @@ public class SetupCommand extends AbstractCommand {
 
     public SetupCommand(ApiClient apiClient) {
         this.apiClient = apiClient;
+        this.cooldown = TimeUnit.SECONDS.toMillis(30);
     }
 
     @SubCommand(isDefault = true)
