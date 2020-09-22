@@ -16,6 +16,7 @@ import java.time.Instant;
 import java.util.Arrays;
 import java.util.Optional;
 import java.util.Set;
+import java.util.concurrent.TimeUnit;
 
 public class ProfileCommand extends AbstractCommand {
 
@@ -23,11 +24,12 @@ public class ProfileCommand extends AbstractCommand {
 
     public ProfileCommand(ApiClient apiClient) {
         this.apiClient = apiClient;
+        this.cooldown = TimeUnit.SECONDS.toMillis(10);
     }
 
     @SubCommand(args = "<@!?\\d+>")
     public void onExecution(CommandEvent event, Member member, TextChannel channel, String[] args) {
-        if(!CommandUtil.isInCommandChannel(channel)) {
+        if (!CommandUtil.isInCommandChannel(channel)) {
             return;
         }
 
@@ -46,15 +48,15 @@ public class ProfileCommand extends AbstractCommand {
         User user = (User) iMentionable;
         Message message = channel.sendMessage(Messages.pleaseWait()).complete();
 
-        apiClient.getExecutorService().submit(() -> {
-            xyz.spedcord.discordbot.api.User userInfo = apiClient.getUserInfo(user.getIdLong(), false);
+        this.apiClient.getExecutorService().submit(() -> {
+            xyz.spedcord.discordbot.api.User userInfo = this.apiClient.getUserInfo(user.getIdLong(), false);
 
             if (userInfo == null) {
                 message.editMessage(Messages.error(user.getAsTag() + " is not registered!")).queue();
                 return;
             }
 
-            Company company = userInfo.getCompanyId() == -1 ? null : apiClient.getCompanyInfo(userInfo.getCompanyId());
+            Company company = userInfo.getCompanyId() == -1 ? null : this.apiClient.getCompanyInfo(userInfo.getCompanyId());
 
             EmbedBuilder embedBuilder = new EmbedBuilder()
                     .setTitle("Profile of " + user.getAsTag())
@@ -63,7 +65,7 @@ public class ProfileCommand extends AbstractCommand {
                     .setThumbnail(user.getEffectiveAvatarUrl())
                     .setColor(Color.WHITE)
                     .setTimestamp(Instant.now());
-            if(Arrays.asList(userInfo.getFlags()).contains(xyz.spedcord.discordbot.api.User.Flag.CHEATER)) {
+            if (Arrays.asList(userInfo.getFlags()).contains(xyz.spedcord.discordbot.api.User.Flag.CHEATER)) {
                 embedBuilder.addField(":warning: Warning :warning:", "This user is flagged as a cheater!", false);
             }
 

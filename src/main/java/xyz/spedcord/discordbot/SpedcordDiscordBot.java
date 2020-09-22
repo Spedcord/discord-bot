@@ -9,6 +9,7 @@ import io.javalin.Javalin;
 import io.javalin.http.HandlerType;
 import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.JDABuilder;
+import net.dv8tion.jda.api.MessageBuilder;
 import net.dv8tion.jda.api.entities.Activity;
 import net.dv8tion.jda.api.events.guild.GuildJoinEvent;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
@@ -94,15 +95,20 @@ public class SpedcordDiscordBot {
                 .put(new BalanceCommand(apiClient), "balance")
                 .put(new LeaveCompanyCommand(apiClient), "leavecompany")
                 .put(new SetCommandChannelCommand(settingsProvider), "setcommandchannel")
+                .put(new SyncRolesCommand(apiClient), "syncroles")
                 //.put(new ShopCommand(apiClient), "shop")
                 .put(new HelpCommand(), "help")
+                .setCooldownMessage(new MessageBuilder()
+                        .setEmbed(Messages.error("This command is currently on " +
+                                "cooldown, please wait a few seconds."))
+                        .build())
                 .activate();
 
         Runtime.getRuntime().addShutdownHook(new Thread(jda::shutdown));
 
-        startActivityTask(jda);
-        startServer(jda, apiClient, settingsProvider);
-        readInput();
+        this.startActivityTask(jda);
+        this.startServer(jda, apiClient, settingsProvider);
+        this.readInput();
     }
 
     private void startActivityTask(JDA jda) {
@@ -112,22 +118,22 @@ public class SpedcordDiscordBot {
 
             @Override
             public void run() {
-                switch (idx) {
+                switch (this.idx) {
                     case 0:
                         jda.getPresence().setActivity(Activity.listening("&help"));
-                        idx++;
+                        this.idx++;
                         break;
                     case 1:
                         jda.getPresence().setActivity(Activity.playing("Euro Truck Simulator 2"));
-                        idx++;
+                        this.idx++;
                         break;
                     case 2:
                         jda.getPresence().setActivity(Activity.playing("American Truck Simulator"));
-                        idx++;
+                        this.idx++;
                         break;
                     case 3:
                         jda.getPresence().setActivity(Activity.listening("TruckersFM"));
-                        idx = 0;
+                        this.idx = 0;
                         break;
                 }
             }

@@ -5,11 +5,11 @@ import xyz.spedcord.discordbot.SpedcordDiscordBot;
 import java.io.*;
 import java.net.HttpURLConnection;
 import java.net.URL;
-import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
@@ -23,11 +23,21 @@ public class ApiClient {
     public ApiClient() {
     }
 
+    public CompletableFuture<User> getUserInfoAsync(long discordId, boolean elevated) {
+        CompletableFuture<User> future = new CompletableFuture<>();
+        this.executorService.submit(() -> {
+            User userInfo = this.getUserInfo(discordId, elevated);
+            future.complete(userInfo);
+        });
+        return future;
+    }
+
+    @Deprecated(since = "2.1.0")
     public User getUserInfo(long discordId, boolean elevated) {
-        ApiResponse response = makeRequestSilent("/user/" + (elevated ? "get" : "info") + "/" + discordId,
+        ApiResponse response = this.makeRequestSilent("/user/" + (elevated ? "get" : "info") + "/" + discordId,
                 "GET", new HashMap<>(), new HashMap<>() {
                     {
-                        put("Authorization", "");
+                        this.put("Authorization", "");
                     }
                 }, "");
 
@@ -37,8 +47,18 @@ public class ApiClient {
         return SpedcordDiscordBot.GSON.fromJson(response.body, User.class);
     }
 
+    public CompletableFuture<Company> getCompanyInfoAsync(long discordId) {
+        CompletableFuture<Company> future = new CompletableFuture<>();
+        this.executorService.submit(() -> {
+            Company companyInfo = this.getCompanyInfo(discordId);
+            future.complete(companyInfo);
+        });
+        return future;
+    }
+
+    @Deprecated(since = "2.1.0")
     public Company getCompanyInfo(long discordId) {
-        ApiResponse response = makeRequestSilent("/company/info?discordServerId=" + discordId,
+        ApiResponse response = this.makeRequestSilent("/company/info?discordServerId=" + discordId,
                 "GET", new HashMap<>(), new HashMap<>(), "");
 
         if (response == null || response.status != 200) {
@@ -47,8 +67,18 @@ public class ApiClient {
         return SpedcordDiscordBot.GSON.fromJson(response.body, Company.class);
     }
 
+    public CompletableFuture<Company> getCompanyInfoAsync(int id) {
+        CompletableFuture<Company> future = new CompletableFuture<>();
+        this.executorService.submit(() -> {
+            Company companyInfo = this.getCompanyInfo(id);
+            future.complete(companyInfo);
+        });
+        return future;
+    }
+
+    @Deprecated(since = "2.1.0")
     public Company getCompanyInfo(int id) {
-        ApiResponse response = makeRequestSilent("/company/info?id=" + id,
+        ApiResponse response = this.makeRequestSilent("/company/info?id=" + id,
                 "GET", new HashMap<>(), new HashMap<>(), "");
 
         if (response == null || response.status != 200) {
@@ -57,111 +87,142 @@ public class ApiClient {
         return SpedcordDiscordBot.GSON.fromJson(response.body, Company.class);
     }
 
+    public CompletableFuture<ApiResponse> registerCompanyAsync(String name, long serverId, long ownerId) {
+        CompletableFuture<ApiResponse> future = new CompletableFuture<>();
+        this.executorService.submit(() -> {
+            ApiResponse apiResponse = this.registerCompany(name, serverId, ownerId);
+            future.complete(apiResponse);
+        });
+        return future;
+    }
+
+    @Deprecated(since = "2.1.0")
     public ApiResponse registerCompany(String name, long serverId, long ownerId) {
-        return makeRequestSilent("/company/register", "POST", new HashMap<>(), new HashMap<>() {
+        return this.makeRequestSilent("/company/register", "POST", new HashMap<>(), new HashMap<>() {
             {
-                put("Authorization", "");
+                this.put("Authorization", "");
             }
         }, SpedcordDiscordBot.GSON.toJson(new Company(-1, serverId, name, ownerId, 0, 0, new ArrayList<>(), new ArrayList<>(), "")));
     }
 
+    public CompletableFuture<ApiResponse> createJoinLinkAsync(int companyId, int maxUses, String customId) {
+        CompletableFuture<ApiResponse> future = new CompletableFuture<>();
+        this.executorService.submit(() -> {
+            ApiResponse apiResponse = this.createJoinLink(companyId, maxUses, customId);
+            future.complete(apiResponse);
+        });
+        return future;
+    }
+
+    @Deprecated(since = "2.1.0")
     public ApiResponse createJoinLink(int companyId, int maxUses, String customId) {
-        return makeRequestSilent("/company/createjoinlink/" + companyId + "?maxUses="
+        return this.makeRequestSilent("/company/createjoinlink/" + companyId + "?maxUses="
                         + maxUses + (customId == null ? "" : "&customId=" + customId),
                 "POST", new HashMap<>(), new HashMap<>() {
                     {
-                        put("Authorization", "");
+                        this.put("Authorization", "");
                     }
                 }, "");
     }
 
+    public CompletableFuture<ApiResponse> kickMemberAsync(long companyDiscordId, long userDiscordId) {
+        CompletableFuture<ApiResponse> future = new CompletableFuture<>();
+        this.executorService.submit(() -> {
+            ApiResponse apiResponse = this.kickMember(companyDiscordId, userDiscordId);
+            future.complete(apiResponse);
+        });
+        return future;
+    }
+
+    @Deprecated(since = "2.1.0")
     public ApiResponse kickMember(long companyDiscordId, long userDiscordId) {
-        return makeRequestSilent("/company/member/kick",
+        return this.makeRequestSilent("/company/member/kick",
                 "POST", new HashMap<>() {
                     {
-                        put("companyDiscordId", String.valueOf(companyDiscordId));
-                        put("userDiscordId", String.valueOf(userDiscordId));
+                        this.put("companyDiscordId", String.valueOf(companyDiscordId));
+                        this.put("userDiscordId", String.valueOf(userDiscordId));
                     }
                 }, new HashMap<>() {
                     {
-                        put("Authorization", "");
+                        this.put("Authorization", "");
                     }
                 }, "");
     }
 
-    public ApiResponse buyCustomInvite(long companyDiscordId, String id) {
-        return makeRequestSilent("/company/shop",
-                "POST", new HashMap<>() {
-                    {
-                        put("discordServerId", String.valueOf(companyDiscordId));
-                        put("item", "custom perma invite");
-                        put("joinId", id);
-                    }
-                }, new HashMap<>() {
-                    {
-                        put("Authorization", "");
-                    }
-                }, "");
+    public CompletableFuture<ApiResponse> changeUserKeyAsync(long userDiscordId) {
+        CompletableFuture<ApiResponse> future = new CompletableFuture<>();
+        this.executorService.submit(() -> {
+            ApiResponse apiResponse = this.changeUserKey(userDiscordId);
+            future.complete(apiResponse);
+        });
+        return future;
     }
 
-    public ApiResponse buyItem(long companyDiscordId, String item) {
-        return makeRequestSilent("/company/shop",
-                "POST", new HashMap<>() {
-                    {
-                        put("discordServerId", String.valueOf(companyDiscordId));
-                        put("item", URLEncoder.encode(item, StandardCharsets.UTF_8));
-                    }
-                }, new HashMap<>() {
-                    {
-                        put("Authorization", "");
-                    }
-                }, "");
-    }
-
+    @Deprecated(since = "2.1.0")
     public ApiResponse changeUserKey(long userDiscordId) {
-        return makeRequestSilent("/user/changekey",
+        return this.makeRequestSilent("/user/changekey",
                 "POST", new HashMap<>() {
                     {
-                        put("discordId", String.valueOf(userDiscordId));
+                        this.put("discordId", String.valueOf(userDiscordId));
                     }
                 }, new HashMap<>() {
                     {
-                        put("Authorization", "");
+                        this.put("Authorization", "");
                     }
                 }, "");
     }
 
+    public CompletableFuture<ApiResponse> cancelJobAsync(long userDiscordId) {
+        CompletableFuture<ApiResponse> future = new CompletableFuture<>();
+        this.executorService.submit(() -> {
+            ApiResponse apiResponse = this.cancelJob(userDiscordId);
+            future.complete(apiResponse);
+        });
+        return future;
+    }
+
+    @Deprecated(since = "2.1.0")
     public ApiResponse cancelJob(long userDiscordId) {
-        String key = getUserInfo(userDiscordId, true).getKey();
-        return makeRequestSilent("/job/cancel",
+        String key = this.getUserInfo(userDiscordId, true).getKey();
+        return this.makeRequestSilent("/job/cancel",
                 "POST", new HashMap<>() {
                     {
-                        put("discordId", String.valueOf(userDiscordId));
-                        put("key", key);
+                        this.put("discordId", String.valueOf(userDiscordId));
+                        this.put("key", key);
                     }
                 }, new HashMap<>() {
                     {
-                        put("Authorization", "");
+                        this.put("Authorization", "");
                     }
                 }, "");
     }
 
+    public CompletableFuture<ApiResponse> leaveCompanyAsync(long userDiscordId) {
+        CompletableFuture<ApiResponse> future = new CompletableFuture<>();
+        this.executorService.submit(() -> {
+            ApiResponse apiResponse = this.leaveCompany(userDiscordId);
+            future.complete(apiResponse);
+        });
+        return future;
+    }
+
+    @Deprecated(since = "2.1.0")
     public ApiResponse leaveCompany(long userDiscordId) {
-        return makeRequestSilent("/user/leavecompany",
+        return this.makeRequestSilent("/user/leavecompany",
                 "POST", new HashMap<>() {
                     {
-                        put("discordId", String.valueOf(userDiscordId));
+                        this.put("discordId", String.valueOf(userDiscordId));
                     }
                 }, new HashMap<>() {
                     {
-                        put("Authorization", "");
+                        this.put("Authorization", "");
                     }
                 }, "");
     }
 
     private ApiResponse makeRequestSilent(String path, String method, Map<String, String> params, Map<String, String> header, String body) {
         try {
-            return makeRequest(path, method, params, header, body);
+            return this.makeRequest(path, method, params, header, body);
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -203,8 +264,9 @@ public class ApiClient {
 
         StringBuilder responseBodyBuilder = new StringBuilder();
         String s;
-        while ((s = bufferedReader.readLine()) != null)
+        while ((s = bufferedReader.readLine()) != null) {
             responseBodyBuilder.append(s).append('\n');
+        }
         bufferedReader.close();
 
         return new ApiResponse(connection.getResponseCode(), responseBodyBuilder.toString().trim());
@@ -215,7 +277,7 @@ public class ApiClient {
     }
 
     public ExecutorService getExecutorService() {
-        return executorService;
+        return this.executorService;
     }
 
     public static class ApiResponse {
