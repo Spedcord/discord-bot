@@ -56,14 +56,16 @@ public class CreateJoinLinkCommand extends AbstractCommand {
                 }
             }
 
-            ApiClient.ApiResponse apiResponse = this.apiClient.createJoinLink(companyInfo.getId(), maxUses, null);
-            if (apiResponse.status != 200) {
-                message.editMessage(Messages.error("Failed to create join link, please try again later.")).queue();
-                return;
-            }
+            int finalMaxUses = maxUses;
+            this.apiClient.createJoinLinkAsync(companyInfo.getId(), maxUses, null).whenComplete((apiResponse, throwable1) -> {
+                if (apiResponse.status != 200) {
+                    message.editMessage(Messages.error("Failed to create join link, please try again later.")).queue();
+                    return;
+                }
 
-            message.editMessage(Messages.success("Your join link was created: " + apiResponse.body.trim()
-                    + "\nThis link can be used " + maxUses + " times.")).queue();
+                message.editMessage(Messages.success("Your join link was created: " + apiResponse.body.trim()
+                        + "\nThis link can be used " + finalMaxUses + " times.")).queue();
+            });
         });
     }
 

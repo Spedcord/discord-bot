@@ -125,21 +125,22 @@ public class ApiClient {
                 }, "");
     }
 
-    public CompletableFuture<ApiResponse> kickMemberAsync(long companyDiscordId, long userDiscordId) {
+    public CompletableFuture<ApiResponse> kickMemberAsync(long companyDiscordId, long kickerDiscordId, long userDiscordId) {
         CompletableFuture<ApiResponse> future = new CompletableFuture<>();
         this.executorService.submit(() -> {
-            ApiResponse apiResponse = this.kickMember(companyDiscordId, userDiscordId);
+            ApiResponse apiResponse = this.kickMember(companyDiscordId, kickerDiscordId, userDiscordId);
             future.complete(apiResponse);
         });
         return future;
     }
 
     @Deprecated(since = "2.1.0")
-    public ApiResponse kickMember(long companyDiscordId, long userDiscordId) {
+    public ApiResponse kickMember(long companyDiscordId, long kickerDiscordId, long userDiscordId) {
         return this.makeRequestSilent("/company/member/kick",
                 "POST", new HashMap<>() {
                     {
                         this.put("companyDiscordId", String.valueOf(companyDiscordId));
+                        this.put("kickerDiscordId", String.valueOf(kickerDiscordId));
                         this.put("userDiscordId", String.valueOf(userDiscordId));
                     }
                 }, new HashMap<>() {

@@ -31,11 +31,6 @@ public class KickMemberCommand extends AbstractCommand {
             return;
         }
 
-        if (!CommandUtil.isBotAdmin(member)) {
-            event.respond(Messages.error("You need the `Spedcord Bot Admin` role or `Administrator` permission for this command."));
-            return;
-        }
-
         Optional<User> userMention = event.getFirstUserMention();
         if (userMention.isEmpty()) {
             this.onWrongUsage(event, member, channel, args);
@@ -45,16 +40,17 @@ public class KickMemberCommand extends AbstractCommand {
         User user = userMention.get();
         Message message = channel.sendMessage(Messages.pleaseWait()).complete();
 
-        this.apiClient.kickMemberAsync(channel.getGuild().getIdLong(), user.getIdLong()).whenComplete((apiResponse, throwable) -> {
-            if (apiResponse.status == 200) {
-                message.editMessage(Messages.success("The member was kicked!")).queue();
-                return;
-            }
+        this.apiClient.kickMemberAsync(channel.getGuild().getIdLong(), member.getIdLong(), user.getIdLong())
+                .whenComplete((apiResponse, throwable) -> {
+                    if (apiResponse.status == 200) {
+                        message.editMessage(Messages.success("The member was kicked!")).queue();
+                        return;
+                    }
 
-            message.editMessage(Messages.error(String.format("Failed to kick member: `%s`",
-                    JsonParser.parseString(apiResponse.body).getAsJsonObject().get("data")
-                            .getAsJsonObject().get("message").getAsString()))).queue();
-        });
+                    message.editMessage(Messages.error(String.format("Failed to kick member: `%s`",
+                            JsonParser.parseString(apiResponse.body).getAsJsonObject().get("data")
+                                    .getAsJsonObject().get("message").getAsString()))).queue();
+                });
     }
 
     @SubCommand(isDefault = true)
