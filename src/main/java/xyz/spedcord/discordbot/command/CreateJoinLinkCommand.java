@@ -7,10 +7,9 @@ import net.dv8tion.jda.api.MessageBuilder;
 import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.entities.TextChannel;
-import xyz.spedcord.discordbot.api.Company;
+import xyz.spedcord.discordbot.api.ApiClient;
 import xyz.spedcord.discordbot.message.Messages;
 import xyz.spedcord.discordbot.util.CommandUtil;
-import xyz.spedcord.discordbot.api.ApiClient;
 
 import java.awt.*;
 import java.util.Set;
@@ -25,7 +24,7 @@ public class CreateJoinLinkCommand extends AbstractCommand {
 
     @SubCommand(isDefault = true)
     public void onExecution(CommandEvent event, Member member, TextChannel channel, String[] args) {
-        if(!CommandUtil.isInCommandChannel(channel)) {
+        if (!CommandUtil.isInCommandChannel(channel)) {
             return;
         }
 
@@ -36,8 +35,7 @@ public class CreateJoinLinkCommand extends AbstractCommand {
 
         Message message = channel.sendMessage(Messages.pleaseWait()).complete();
 
-        apiClient.getExecutorService().submit(() -> {
-            Company companyInfo = apiClient.getCompanyInfo(channel.getGuild().getIdLong());
+        this.apiClient.getCompanyInfoAsync(channel.getGuild().getIdLong()).whenComplete((companyInfo, throwable) -> {
             if (companyInfo == null) {
                 message.editMessage(Messages.error("This server is not registered as a vtc!")).queue();
                 return;
@@ -58,7 +56,7 @@ public class CreateJoinLinkCommand extends AbstractCommand {
                 }
             }
 
-            ApiClient.ApiResponse apiResponse = apiClient.createJoinLink(companyInfo.getId(), maxUses, null);
+            ApiClient.ApiResponse apiResponse = this.apiClient.createJoinLink(companyInfo.getId(), maxUses, null);
             if (apiResponse.status != 200) {
                 message.editMessage(Messages.error("Failed to create join link, please try again later.")).queue();
                 return;

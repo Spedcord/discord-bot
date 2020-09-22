@@ -10,9 +10,9 @@ import net.dv8tion.jda.api.entities.TextChannel;
 import xyz.spedcord.discordbot.SpedcordDiscordBot;
 import xyz.spedcord.discordbot.api.ApiClient;
 import xyz.spedcord.discordbot.api.Company;
-import xyz.spedcord.discordbot.api.User;
 import xyz.spedcord.discordbot.message.Messages;
 import xyz.spedcord.discordbot.util.CommandUtil;
+import xyz.spedcord.discordbot.util.SyncUtil;
 
 import java.awt.*;
 import java.util.Set;
@@ -38,15 +38,14 @@ public class SetupCommand extends AbstractCommand {
 
         Message message = channel.sendMessage(Messages.custom("Please wait", Color.ORANGE, "Please wait while I check some things in the background.")).complete();
 
-        apiClient.getExecutorService().submit(() -> {
-            User userInfo = apiClient.getUserInfo(member.getIdLong(), false);
+        this.apiClient.getUserInfoAsync(member.getIdLong(), false).whenComplete((userInfo, throwable) -> {
             if (userInfo == null) {
                 message.editMessage(Messages.error("You are not registered. [Please register an account.]("
                         + (SpedcordDiscordBot.DEV ? "http://localhost:81" : "https://api.spedcord.xyz") + "/user/register)")).queue();
                 return;
             }
 
-            Company companyInfo = apiClient.getCompanyInfo(channel.getGuild().getIdLong());
+            Company companyInfo = this.apiClient.getCompanyInfo(channel.getGuild().getIdLong());
             if (companyInfo != null) {
                 message.editMessage(Messages.success("This server is already a fully functioning vtc!")).queue();
                 return;
@@ -58,19 +57,24 @@ public class SetupCommand extends AbstractCommand {
             }
             String name = String.join(" ", args);
 
-            if(name.length() >= 24) {
+            if (name.length() >= 24) {
                 message.editMessage(Messages.error("The name has to be shorter than 25 characters.")).queue();
                 return;
             }
-            if(name.length() <= 4) {
+            if (name.length() <= 4) {
                 message.editMessage(Messages.error("The name has to be longer than 4 characters.")).queue();
                 return;
             }
 
-            ApiClient.ApiResponse apiResponse = apiClient.registerCompany(name, channel.getGuild().getIdLong(), channel.getGuild().getOwnerIdLong());
+            this.apiClient.registerCompanyAsync(name, channel.getGuild().getIdLong(), channel.getGuild().getOwnerIdLong()).whenComplete((apiResponse, throwable1) -> {
+                message.editMessage(apiResponse.status == 200 ? Messages.success("This server is now registered as a vtc!")
+                        : Messages.error("Failed to register server: " + apiResponse.body)).queue();
 
-            message.editMessage(apiResponse.status == 200 ? Messages.success("This server is now registered as a vtc!")
-                    : Messages.error("Failed to register server: " + apiResponse.body)).queue();
+                if (apiResponse.status == 200) {
+                    this.apiClient.getCompanyInfoAsync(channel.getGuild().getIdLong())
+                            .whenComplete((company, throwable2) -> SyncUtil.synchronize(company, channel.getGuild()));
+                }
+            });
         });
     }
 

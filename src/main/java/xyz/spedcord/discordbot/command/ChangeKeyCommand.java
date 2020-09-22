@@ -27,8 +27,7 @@ public class ChangeKeyCommand extends AbstractCommand {
         }
 
         channel.sendMessage(Messages.pleaseWait()).queue(message -> {
-            apiClient.getExecutorService().submit(() -> {
-                ApiClient.ApiResponse apiResponse = apiClient.changeUserKey(user.getIdLong());
+            this.apiClient.changeUserKeyAsync(user.getIdLong()).whenComplete((apiResponse, throwable) -> {
                 if (apiResponse.status != 200) {
                     message.editMessage(Messages.error("Failed to change key. Please try again later.")).queue();
                     return;

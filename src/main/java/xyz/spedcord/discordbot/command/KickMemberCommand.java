@@ -27,7 +27,7 @@ public class KickMemberCommand extends AbstractCommand {
 
     @SubCommand(args = "<@!?\\d+>")
     public void onExecution(CommandEvent event, Member member, TextChannel channel, String[] args) {
-        if(!CommandUtil.isInCommandChannel(channel)) {
+        if (!CommandUtil.isInCommandChannel(channel)) {
             return;
         }
 
@@ -38,15 +38,14 @@ public class KickMemberCommand extends AbstractCommand {
 
         Optional<User> userMention = event.getFirstUserMention();
         if (userMention.isEmpty()) {
-            onWrongUsage(event, member, channel, args);
+            this.onWrongUsage(event, member, channel, args);
             return;
         }
 
         User user = userMention.get();
         Message message = channel.sendMessage(Messages.pleaseWait()).complete();
 
-        apiClient.getExecutorService().submit(() -> {
-            ApiClient.ApiResponse apiResponse = apiClient.kickMember(channel.getGuild().getIdLong(), user.getIdLong());
+        this.apiClient.kickMemberAsync(channel.getGuild().getIdLong(), user.getIdLong()).whenComplete((apiResponse, throwable) -> {
             if (apiResponse.status == 200) {
                 message.editMessage(Messages.success("The member was kicked!")).queue();
                 return;

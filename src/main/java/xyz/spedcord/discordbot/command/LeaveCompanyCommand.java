@@ -27,9 +27,7 @@ public class LeaveCompanyCommand extends AbstractCommand {
     public void onExecution(CommandEvent event, User user, MessageChannel channel, String[] args) {
         Message message = channel.sendMessage(Messages.pleaseWait()).complete();
 
-        apiClient.getExecutorService().submit(() -> {
-            ApiClient.ApiResponse apiResponse = apiClient.leaveCompany(user.getIdLong());
-
+        this.apiClient.leaveCompanyAsync(user.getIdLong()).whenComplete((apiResponse, throwable) -> {
             if (apiResponse.status == 200) {
                 message.editMessage(Messages.success("You left your company!")).queue();
                 return;

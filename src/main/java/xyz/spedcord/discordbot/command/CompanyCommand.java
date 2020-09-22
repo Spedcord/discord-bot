@@ -10,7 +10,6 @@ import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.entities.TextChannel;
 import net.dv8tion.jda.api.entities.User;
 import xyz.spedcord.discordbot.api.ApiClient;
-import xyz.spedcord.discordbot.api.Company;
 import xyz.spedcord.discordbot.message.Messages;
 import xyz.spedcord.discordbot.util.CommandUtil;
 
@@ -36,8 +35,7 @@ public class CompanyCommand extends AbstractCommand {
 
         Message message = channel.sendMessage(Messages.pleaseWait()).complete();
 
-        apiClient.getExecutorService().submit(() -> {
-            Company companyInfo = apiClient.getCompanyInfo(channel.getGuild().getIdLong());
+        this.apiClient.getCompanyInfoAsync(channel.getGuild().getIdLong()).whenComplete((companyInfo, throwable) -> {
             if (companyInfo == null) {
                 message.editMessage(Messages.error("This server is not a vtc!")).queue();
                 return;

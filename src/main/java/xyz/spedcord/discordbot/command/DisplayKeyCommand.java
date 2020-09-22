@@ -27,10 +27,8 @@ public class DisplayKeyCommand extends AbstractCommand {
         }
 
         channel.sendMessage(Messages.pleaseWait()).queue(message -> {
-            apiClient.getExecutorService().submit(() -> {
-                xyz.spedcord.discordbot.api.User userInfo = apiClient.getUserInfo(user.getIdLong(), true);
-
-                if(userInfo == null) {
+            this.apiClient.getUserInfoAsync(user.getIdLong(), true).whenComplete((userInfo, throwable) -> {
+                if (userInfo == null) {
                     channel.sendMessage(Messages.error("You are not registered! You can register yourself " +
                             "here: https://api.spedcord.xyz/user/register")).queue();
                     return;

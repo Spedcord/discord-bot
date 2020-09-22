@@ -27,7 +27,7 @@ public class BalanceCommand extends AbstractCommand {
 
     @SubCommand(args = "<@!?\\d+>")
     public void onExecution(CommandEvent event, Member member, TextChannel channel, String[] args) {
-        if(!CommandUtil.isInCommandChannel(channel)) {
+        if (!CommandUtil.isInCommandChannel(channel)) {
             return;
         }
 
@@ -39,9 +39,7 @@ public class BalanceCommand extends AbstractCommand {
         Message message = channel.sendMessage(Messages.pleaseWait()).complete();
 
         User user = mention.get();
-        apiClient.getExecutorService().submit(() -> {
-            xyz.spedcord.discordbot.api.User userInfo = apiClient.getUserInfo(user.getIdLong(), false);
-
+        this.apiClient.getUserInfoAsync(user.getIdLong(), false).whenComplete((userInfo, throwable) -> {
             if (userInfo == null) {
                 message.editMessage(Messages.error(user.getAsTag() + " is not registered!")).queue();
                 return;

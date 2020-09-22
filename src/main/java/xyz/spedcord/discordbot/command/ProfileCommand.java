@@ -48,9 +48,7 @@ public class ProfileCommand extends AbstractCommand {
         User user = (User) iMentionable;
         Message message = channel.sendMessage(Messages.pleaseWait()).complete();
 
-        this.apiClient.getExecutorService().submit(() -> {
-            xyz.spedcord.discordbot.api.User userInfo = this.apiClient.getUserInfo(user.getIdLong(), false);
-
+        this.apiClient.getUserInfoAsync(user.getIdLong(), false).whenComplete((userInfo, throwable) -> {
             if (userInfo == null) {
                 message.editMessage(Messages.error(user.getAsTag() + " is not registered!")).queue();
                 return;

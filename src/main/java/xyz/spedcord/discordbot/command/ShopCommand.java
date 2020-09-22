@@ -37,7 +37,7 @@ public class ShopCommand extends AbstractCommand {
         if (args.length != 0) {
             String item = String.join(" ", args);
             System.out.println(item);
-            handleItemBuy(event, member, channel, item);
+            this.handleItemBuy(event, member, channel, item);
             return;
         }
 
@@ -47,14 +47,14 @@ public class ShopCommand extends AbstractCommand {
 
     private void handleItemBuy(CommandEvent event, Member member, TextChannel channel, String item) {
         Message message = channel.sendMessage(Messages.pleaseWait()).complete();
-        apiClient.getExecutorService().submit(() -> {
-            ApiClient.ApiResponse apiResponse;
+        this.apiClient.getExecutorService().submit(() -> {
+            ApiClient.ApiResponse apiResponse = null;
             switch (item.toLowerCase()) {
                 case "custom perma invite":
-                    apiResponse = apiClient.buyItem(channel.getGuild().getIdLong(), item);
+                    //apiResponse = apiClient.buyItem(channel.getGuild().getIdLong(), item);
                     break;
                 default:
-                    apiResponse = apiClient.buyItem(channel.getGuild().getIdLong(), item);
+                    //apiResponse = apiClient.buyItem(channel.getGuild().getIdLong(), item);
                     break;
             }
 
