@@ -52,7 +52,7 @@ public class SyncRolesCommand extends AbstractCommand {
 
     @Override
     public Message info(Member member, String prefix, Set<String> labels) {
-        return new MessageBuilder().setEmbed(Messages.custom("&balance [@member]", Color.PINK,
+        return new MessageBuilder().setEmbed(Messages.custom("&syncroles", Color.PINK,
                 "Shows the balance of a member.")).build();
     }
 

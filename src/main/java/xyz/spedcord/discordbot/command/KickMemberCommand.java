@@ -63,7 +63,7 @@ public class KickMemberCommand extends AbstractCommand {
     @Override
     public Message info(Member member, String prefix, Set<String> labels) {
         return new MessageBuilder().setEmbed(Messages.custom("&kickmember <@member>", Color.PINK,
-                "Removes a member from the company.\n\n**Requires `Spedcord Bot Admin` role**")).build();
+                "Removes a member from the company.")).build();
     }
 
 }

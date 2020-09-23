@@ -96,6 +96,7 @@ public class SpedcordDiscordBot {
                 .put(new LeaveCompanyCommand(apiClient), "leavecompany")
                 .put(new SetCommandChannelCommand(settingsProvider), "setcommandchannel")
                 .put(new SyncRolesCommand(apiClient), "syncroles")
+                .put(new RoleCommand(), "role", "roles")
                 //.put(new ShopCommand(apiClient), "shop")
                 .put(new HelpCommand(), "help")
                 .setCooldownMessage(new MessageBuilder()
