@@ -6,11 +6,11 @@ public class User {
 
     private final int id;
     private final long discordId;
-    private String key;
-    private int companyId;
     private final double balance;
     private final List<Integer> jobList;
-    private Flag[] flags;
+    private String key;
+    private int companyId;
+    private final Flag[] flags;
 
     public User(int id, long discordId, String key, int companyId, double balance, List<Integer> jobList, Flag[] flags) {
         this.id = id;
@@ -23,42 +23,44 @@ public class User {
     }
 
     public int getId() {
-        return id;
+        return this.id;
     }
 
     public long getDiscordId() {
-        return discordId;
+        return this.discordId;
     }
 
     public String getKey() {
-        return key;
-    }
-
-    public int getCompanyId() {
-        return companyId;
-    }
-
-    public List<Integer> getJobList() {
-        return jobList;
-    }
-
-    public void setCompanyId(int companyId) {
-        this.companyId = companyId;
+        return this.key;
     }
 
     public void setKey(String key) {
         this.key = key;
     }
 
+    public int getCompanyId() {
+        return this.companyId;
+    }
+
+    public void setCompanyId(int companyId) {
+        this.companyId = companyId;
+    }
+
+    public List<Integer> getJobList() {
+        return this.jobList;
+    }
+
     public double getBalance() {
-        return balance;
+        return this.balance;
     }
 
     public Flag[] getFlags() {
-        return flags;
+        return this.flags;
     }
 
     public enum Flag {
-        CHEATER
+        CHEATER,
+        DONOR,
+        EARLY_BIRD
     }
 }

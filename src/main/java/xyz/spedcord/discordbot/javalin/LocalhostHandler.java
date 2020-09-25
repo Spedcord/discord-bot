@@ -45,44 +45,65 @@ public class LocalhostHandler extends Endpoint {
 
         JsonObject jsonObject = JsonParser.parseString(ctx.body()).getAsJsonObject();
         long userId = jsonObject.get("user").getAsLong();
-        User user = jda.getUserById(userId);
+        User user = this.jda.getUserById(userId);
 
         ctx.status(200);
 
-        executorService.submit(() -> {
+        this.executorService.submit(() -> {
             switch (jsonObject.get("event").getAsString()) {
                 case "NEW_USER":
-                    handleNewUser(user, jsonObject);
+                    this.handleNewUser(user, jsonObject);
                     break;
                 case "JOB":
-                    handleJob(jsonObject, userId);
+                    this.handleJob(jsonObject, userId);
                     break;
                 case "USER_JOIN_COMPANY":
                 case "USER_LEAVE_COMPANY":
-                    handleUserLeaveOrJoinCompany(user, jsonObject.get("event").getAsString().contains("JOIN"), jsonObject);
+                    this.handleUserLeaveOrJoinCompany(user, jsonObject.get("event").getAsString().contains("JOIN"), jsonObject);
                     break;
                 case "USER_ROLE_UPDATE":
-                    handleUserRoleUpdate(user, jsonObject);
+                    this.handleUserRoleUpdate(user, jsonObject);
                     break;
                 case "WARN":
-                    handleWarn(jsonObject);
+                    this.handleWarn(user, jsonObject);
+                    break;
+                case "MOD_LOG":
+                    this.handleModLog(user, jsonObject);
                     break;
             }
         });
     }
 
-    private void handleWarn(JsonObject jsonObject) {
-        Company companyInfo = apiClient.getCompanyInfo(jsonObject.get("data").getAsJsonObject().get("company").getAsInt());
+    private void handleModLog(User user, JsonObject jsonObject) {
+        long modChannelId = SpedcordDiscordBot.DEV ? 758534045612900402L : 758525117025484860L;
+        TextChannel channel = this.jda.getTextChannelById(modChannelId);
 
-        GuildSettings guildSettings = settingsProvider.getGuildSettings(companyInfo.getDiscordServerId());
-        TextChannel textChannel = jda.getTextChannelById(guildSettings.getLogChannelId());
+        String msg = jsonObject.get("data").getAsJsonObject().get("msg").getAsString();
+        Color color = new Color(jsonObject.get("data").getAsJsonObject().get("color").getAsInt());
+
+        channel.sendMessage(Messages.custom("Mod Log", color, "**" + user.getAsMention() + "**\n\n" + msg)).queue();
+    }
+
+    private void handleWarn(User user, JsonObject jsonObject) {
+        String msg = jsonObject.get("data").getAsJsonObject().get("msg").getAsString();
+        if (msg.equals("CHEATER")) {
+            msg = "Your company member " + user.getAsMention() + " has violated Spedcords rules by cheating.";
+
+            user.openPrivateChannel().queue(channel -> channel.sendMessage(Messages.custom("Warning", Color.RED,
+                    "You were flagged as a cheater by our moderators. Please contact the staff team if you have any questions.")).queue());
+        }
+
+        Company companyInfo = this.apiClient.getCompanyInfo(jsonObject.get("data").getAsJsonObject().get("company").getAsInt());
+
+        GuildSettings guildSettings = this.settingsProvider.getGuildSettings(companyInfo.getDiscordServerId());
+        TextChannel textChannel = this.jda.getTextChannelById(guildSettings.getLogChannelId());
 
         if (textChannel == null) {
             return;
         }
 
         textChannel.sendMessage(Messages.custom("Warning",
-                new Color(255, 170, 0), jsonObject.get("data").getAsJsonObject().get("msg").getAsString())).queue();
+                new Color(255, 170, 0), msg)).queue();
     }
 
     private void handleUserRoleUpdate(User user, JsonObject object) {
@@ -90,10 +111,10 @@ public class LocalhostHandler extends Endpoint {
             return;
         }
 
-        Company companyInfo = apiClient.getCompanyInfo(object.get("data").getAsJsonObject().get("company").getAsInt());
+        Company companyInfo = this.apiClient.getCompanyInfo(object.get("data").getAsJsonObject().get("company").getAsInt());
 
-        GuildSettings guildSettings = settingsProvider.getGuildSettings(companyInfo.getDiscordServerId());
-        TextChannel textChannel = jda.getTextChannelById(guildSettings.getLogChannelId());
+        GuildSettings guildSettings = this.settingsProvider.getGuildSettings(companyInfo.getDiscordServerId());
+        TextChannel textChannel = this.jda.getTextChannelById(guildSettings.getLogChannelId());
 
         if (textChannel == null) {
             return;
@@ -109,10 +130,10 @@ public class LocalhostHandler extends Endpoint {
             return;
         }
 
-        Company companyInfo = apiClient.getCompanyInfo(object.get("data").getAsJsonObject().get("company").getAsInt());
+        Company companyInfo = this.apiClient.getCompanyInfo(object.get("data").getAsJsonObject().get("company").getAsInt());
 
-        GuildSettings guildSettings = settingsProvider.getGuildSettings(companyInfo.getDiscordServerId());
-        TextChannel textChannel = jda.getTextChannelById(guildSettings.getLogChannelId());
+        GuildSettings guildSettings = this.settingsProvider.getGuildSettings(companyInfo.getDiscordServerId());
+        TextChannel textChannel = this.jda.getTextChannelById(guildSettings.getLogChannelId());
 
         if (textChannel == null) {
             return;
@@ -136,25 +157,25 @@ public class LocalhostHandler extends Endpoint {
                                 jsonObject.get("data").getAsJsonObject().get("key").getAsString()))
                         .setColor(Color.WHITE)
                         .setTimestamp(Instant.now())
-                        .setFooter("Powered by Spedcord", jda.getSelfUser().getEffectiveAvatarUrl())
+                        .setFooter("Powered by Spedcord", this.jda.getSelfUser().getEffectiveAvatarUrl())
                         .build()).queue());
     }
 
     private void handleJob(JsonObject jsonObject, long userId) {
-        xyz.spedcord.discordbot.api.User userInfo = apiClient.getUserInfo(userId, false);
-        Company companyInfo = apiClient.getCompanyInfo(userInfo.getCompanyId());
-        GuildSettings guildSettings = settingsProvider.getGuildSettings(companyInfo.getDiscordServerId());
+        xyz.spedcord.discordbot.api.User userInfo = this.apiClient.getUserInfo(userId, false);
+        Company companyInfo = this.apiClient.getCompanyInfo(userInfo.getCompanyId());
+        GuildSettings guildSettings = this.settingsProvider.getGuildSettings(companyInfo.getDiscordServerId());
 
         if (guildSettings.getLogChannelId() == -1) {
             return;
         }
 
-        TextChannel channel = jda.getTextChannelById(guildSettings.getLogChannelId());
+        TextChannel channel = this.jda.getTextChannelById(guildSettings.getLogChannelId());
         if (channel == null) {
             return;
         }
 
-        User discordUser = jda.getUserById(userId);
+        User discordUser = this.jda.getUserById(userId);
         if (discordUser == null) {
             return;
         }
@@ -165,13 +186,13 @@ public class LocalhostHandler extends Endpoint {
 
         switch (state) {
             case "START":
-                handleJobStart(channel, discordUser, jobData);
+                this.handleJobStart(channel, discordUser, jobData);
                 break;
             case "END":
-                handleJobEnd(channel, discordUser, jobData);
+                this.handleJobEnd(channel, discordUser, jobData);
                 break;
             case "CANCEL":
-                handleJobCancel(channel, discordUser, jobData);
+                this.handleJobCancel(channel, discordUser, jobData);
                 break;
         }
     }
@@ -185,7 +206,7 @@ public class LocalhostHandler extends Endpoint {
                 .addField("Truck", jobData.getTruck(), false)
                 .setColor(Color.ORANGE)
                 .setTimestamp(Instant.now())
-                .setFooter("Powered by Spedcord", jda.getSelfUser().getEffectiveAvatarUrl())
+                .setFooter("Powered by Spedcord", this.jda.getSelfUser().getEffectiveAvatarUrl())
                 .build()).queue();
     }
 
@@ -199,7 +220,7 @@ public class LocalhostHandler extends Endpoint {
                 .addField("Pay", new DecimalFormat("#,###").format(jobData.getPay()) + "$", false)
                 .setColor(Color.GREEN)
                 .setTimestamp(Instant.now())
-                .setFooter("Powered by Spedcord", jda.getSelfUser().getEffectiveAvatarUrl())
+                .setFooter("Powered by Spedcord", this.jda.getSelfUser().getEffectiveAvatarUrl())
                 .build()).queue();
     }
 
@@ -212,7 +233,7 @@ public class LocalhostHandler extends Endpoint {
                 .addField("Truck", jobData.getTruck(), false)
                 .setColor(Color.RED)
                 .setTimestamp(Instant.now())
-                .setFooter("Powered by Spedcord", jda.getSelfUser().getEffectiveAvatarUrl())
+                .setFooter("Powered by Spedcord", this.jda.getSelfUser().getEffectiveAvatarUrl())
                 .build()).queue();
     }
 

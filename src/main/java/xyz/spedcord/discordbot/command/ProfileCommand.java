@@ -14,6 +14,7 @@ import xyz.spedcord.discordbot.util.CommandUtil;
 import java.awt.*;
 import java.time.Instant;
 import java.util.Arrays;
+import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 import java.util.concurrent.TimeUnit;
@@ -63,8 +64,16 @@ public class ProfileCommand extends AbstractCommand {
                     .setThumbnail(user.getEffectiveAvatarUrl())
                     .setColor(Color.WHITE)
                     .setTimestamp(Instant.now());
-            if (Arrays.asList(userInfo.getFlags()).contains(xyz.spedcord.discordbot.api.User.Flag.CHEATER)) {
-                embedBuilder.addField(":warning: Warning :warning:", "This user is flagged as a cheater!", false);
+
+            List<xyz.spedcord.discordbot.api.User.Flag> flags = Arrays.asList(userInfo.getFlags());
+            if (flags.contains(xyz.spedcord.discordbot.api.User.Flag.DONOR)) {
+                embedBuilder.addField(":gem: Donor :gem:", "This user has donated to the Spedcord project.", false);
+            }
+            if (flags.contains(xyz.spedcord.discordbot.api.User.Flag.EARLY_BIRD)) {
+                embedBuilder.addField(":runner: Early Bird :runner:", "This user created their account before Spedcords initial release.", false);
+            }
+            if (flags.contains(xyz.spedcord.discordbot.api.User.Flag.CHEATER)) {
+                embedBuilder.addField(":warning: Warning :warning:", "This user has violated Spedcords rules by cheating.", false);
             }
 
             message.editMessage(embedBuilder.build()).queue();
