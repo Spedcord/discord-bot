@@ -43,8 +43,19 @@ public class SyncRolesCommand extends AbstractCommand {
                     return;
                 }
 
-                SyncUtil.synchronize(company, channel.getGuild());
+                boolean success;
+                try {
+                    success = SyncUtil.synchronize(company, channel.getGuild());
+                } catch (Exception e) {
+                    message.editMessage(Messages.error("Failed to sync roles, please notify Spedcord support\n```"
+                            + e.getClass().getSimpleName() + ": " + e.getMessage() + "```")).queue();
+                    return;
+                }
 
+                if (!success) {
+                    message.editMessage(Messages.error("Failed to sync roles. Please move the `Spedcord` role to the first position!")).queue();
+                    return;
+                }
                 message.editMessage(Messages.success("The role synchronisation was started! This can take up to 5 minutes.")).queue();
             });
         });
@@ -53,7 +64,7 @@ public class SyncRolesCommand extends AbstractCommand {
     @Override
     public Message info(Member member, String prefix, Set<String> labels) {
         return new MessageBuilder().setEmbed(Messages.custom("&syncroles", Color.PINK,
-                "Shows the balance of a member.")).build();
+                "Shows the balance of a member.\n\n**Requires `Spedcord Bot Admin` role or `Administrator` permission**")).build();
     }
 
 }

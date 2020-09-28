@@ -83,7 +83,7 @@ public class SetupCommand extends AbstractCommand {
     @Override
     public Message info(Member member, String prefix, Set<String> labels) {
         return new MessageBuilder().setEmbed(Messages.custom("&setup", Color.PINK,
-                "Turns the server into a vtc.\n\n**Requires `Spedcord Bot Admin` role**")).build();
+                "Turns the server into a vtc.\n\n**Requires `Spedcord Bot Admin` role or `Administrator` permission**")).build();
     }
 
 }

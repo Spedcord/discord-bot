@@ -69,7 +69,9 @@ public class SpedcordDiscordBot {
                     @Override
                     public void onGuildJoin(@Nonnull GuildJoinEvent event) {
                         event.getGuild().getSystemChannel().sendMessage(Messages.custom("Welcome to Spedcord",
-                                Color.GREEN, "To use Spedcord commands you need to set the bot channel with `&setBotChannel`.")).queue();
+                                Color.GREEN, "To use Spedcord commands you need to set the bot channel with " +
+                                        "`&setBotChannel`.\nIf you need help [join our Discord](http://discord.spedcord.xyz) " +
+                                        "or take a look at our [guide](https://spedcord.xyz/guide).")).queue();
                     }
                 })
                 .build()
@@ -94,12 +96,12 @@ public class SpedcordDiscordBot {
                 .put(new CancelJobCommand(apiClient), "canceljob")
                 .put(new BalanceCommand(apiClient), "balance")
                 .put(new LeaveCompanyCommand(apiClient), "leavecompany")
-                .put(new SetCommandChannelCommand(settingsProvider), "setcommandchannel")
+                .put(new SetCommandChannelCommand(settingsProvider), "setcommandchannel", "setbotchannel")
                 .put(new SyncRolesCommand(apiClient), "syncroles")
                 .put(new RoleCommand(), "role", "roles")
                 //.put(new ShopCommand(apiClient), "shop")
                 .put(new HelpCommand(), "help")
-                .setCooldownMessage(new MessageBuilder()
+                .setCooldownMessage(() -> new MessageBuilder()
                         .setEmbed(Messages.error("This command is currently on " +
                                 "cooldown, please wait a few seconds."))
                         .build())

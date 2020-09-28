@@ -5,12 +5,10 @@ import com.github.johnnyjayjay.discord.commandapi.CommandEvent;
 import com.github.johnnyjayjay.discord.commandapi.SubCommand;
 import com.google.gson.JsonParser;
 import net.dv8tion.jda.api.MessageBuilder;
-import net.dv8tion.jda.api.entities.Member;
-import net.dv8tion.jda.api.entities.Message;
-import net.dv8tion.jda.api.entities.MessageChannel;
-import net.dv8tion.jda.api.entities.User;
+import net.dv8tion.jda.api.entities.*;
 import xyz.spedcord.discordbot.api.ApiClient;
 import xyz.spedcord.discordbot.message.Messages;
+import xyz.spedcord.discordbot.util.CommandUtil;
 
 import java.awt.*;
 import java.util.Set;
@@ -27,6 +25,10 @@ public class LeaveCompanyCommand extends AbstractCommand {
 
     @SubCommand(guildOnly = false)
     public void onExecution(CommandEvent event, User user, MessageChannel channel, String[] args) {
+        if (channel instanceof TextChannel && !CommandUtil.isInCommandChannel((TextChannel) channel)) {
+            return;
+        }
+
         Message message = channel.sendMessage(Messages.pleaseWait()).complete();
 
         this.apiClient.leaveCompanyAsync(user.getIdLong()).whenComplete((apiResponse, throwable) -> {

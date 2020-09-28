@@ -75,7 +75,7 @@ public class CreateJoinLinkCommand extends AbstractCommand {
     public Message info(Member member, String prefix, Set<String> labels) {
         return new MessageBuilder().setEmbed(Messages.custom("&createjoinlink [maxUses]", Color.PINK,
                 "Creates a join link for this vtc. Max uses specifies the max amount of usages for this link." +
-                        "\n\n**Requires `Spedcord Bot Admin` role**")).build();
+                        "\n\n**`Spedcord Bot Admin` role or `Administrator` permission**")).build();
     }
 
 }

@@ -153,7 +153,8 @@ public class LocalhostHandler extends Endpoint {
                 privateChannel.sendMessage(new EmbedBuilder()
                         .setTitle("Welcome to Spedcord!")
                         .setDescription(String.format("Welcome! This is your private key: " +
-                                        "||%s|| Please **do not** share this key with anyone!",
+                                        "||%s|| Please **do not** share this key with anyone!\nDo you need help? [Join our Discord]" +
+                                        "(http://discord.spedcord.xyz) or take a look at our [guide](https://spedcord.xyz/guide).",
                                 jsonObject.get("data").getAsJsonObject().get("key").getAsString()))
                         .setColor(Color.WHITE)
                         .setTimestamp(Instant.now())
